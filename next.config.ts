@@ -6,6 +6,18 @@ const nextConfig: NextConfig = {
     // product photos (up to 5MB) are uploaded through a Server Action
     serverActions: { bodySizeLimit: "6mb" },
   },
+  // Old and secondary domains → the main site (APP_URL), keeping the path.
+  async redirects() {
+    const target = process.env.APP_URL;
+    if (!target || target.includes("localhost")) return [];
+    const mainHost = new URL(target).host;
+    return ["royalbrides.co.il", "www.royalbrides.co.il", `www.${mainHost}`].map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: `${target}/:path*`,
+      permanent: true,
+    }));
+  },
   async headers() {
     return [
       {

@@ -52,4 +52,6 @@ Form access code (default `06130`) lives in the `settings` table, key `apply_acc
 In GitHub → Settings → Secrets and variables → Actions set variable `APP_URL` and secret `CRON_SECRET` (same value as on Render).
 
 ## Deploy (Render)
+Full step-by-step go-live guide (Hebrew): [DEPLOY.md](DEPLOY.md).
+
 `render.yaml` defines the service. In Render: New → Blueprint → this repo, then fill the secret env vars (`DATABASE_URL`, `RESEND_API_KEY`, `R2_*`, `CRON_SECRET`).

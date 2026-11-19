@@ -6,7 +6,9 @@ import * as schema from "./schema";
 
 // One connection pool per process (reused across hot reloads in dev).
 const globalForDb = globalThis as unknown as { sql?: ReturnType<typeof postgres> };
-const sql = globalForDb.sql ?? postgres(env().DATABASE_URL, { max: 5 });
+// Neon's pooled URL ("-pooler") runs in transaction mode, which can't use prepared statements.
+const url = env().DATABASE_URL;
+const sql = globalForDb.sql ?? postgres(url, { max: 5, prepare: !url.includes("-pooler") });
 if (process.env.NODE_ENV !== "production") globalForDb.sql = sql;
 
 export const db = drizzle(sql, { schema });
