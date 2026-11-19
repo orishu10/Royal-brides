@@ -119,7 +119,7 @@ brides          id, first_name, last_name, id_number(text), father_name, mother_
                 status (enum, ראו למטה),
                 budget_amount, budget_expires_at,
                 rejection_reason,
-                pickup_at,
+                pickup_at, pickup_address,
                 created_at, updated_at, archived_at
 
 documents       id, bride_id, kind(enum), r2_key, file_name, mime, size, uploaded_at
@@ -127,20 +127,21 @@ documents       id, bride_id, kind(enum), r2_key, file_name, mime, size, uploade
                       death_certificate | wedding_invitation | recommendation_letter | other
 
 products        id, name, description, price, image_key, category, sort, active
+product_variants id, product_id, size, color, active      ← למוצרי ביגוד (מידות וצבעים). ללא מלאי – אין הגבלת כמות
 
 orders          id, bride_id, total, notes, submitted_at
-order_items     id, order_id, product_id, name_snapshot, unit_price, qty
+order_items     id, order_id, product_id, variant_id, name_snapshot, size, color, unit_price, qty
 
 events          id, bride_id, actor(admin_id | 'bride' | 'system'), type, payload(jsonb), created_at
                 ← לוג של כל פעולה ומייל. מסך "היסטוריה" בתיק הכלה. זה כלי הדיבאג העיקרי.
 
-settings        key, value   (קוד הכניסה לטופס, מייל המנהלת להתראות, סכום ברירת מחדל, תוקף ברירת מחדל)
+settings        key, value   (קוד הכניסה לטופס, מייל המנהלת להתראות = bracha@bjs.co.il)
 otp_codes       email, code_hash, expires_at, attempts
 ```
 
 ### מכונת המצבים של תיק כלה
 ```
-submitted ──approve(amount, expiry)──► approved ──submitOrder──► ordered ──schedulePickup(date)──► pickup_scheduled ──close──► archived
+submitted ──approve(amount, expiry)──► approved ──submitOrder──► ordered ──schedulePickup(datetime, address)──► pickup_scheduled ──close──► archived
     │
     └──reject(reason)──► rejected ──close──► archived
 ```
@@ -175,9 +176,9 @@ submitted ──approve(amount, expiry)──► approved ──submitOrder─�
 | `/admin/login` | אימייל + סיסמה |
 | `/admin` | רשימת כלות עם טאבים לפי סטטוס: חדשות · מאושרות · הזמינו · לאיסוף · נדחו · ארכיון. חיפוש לפי שם/ת"ז/טלפון. מונה "חדשות" |
 | `/admin/brides/[id]` | תיק כלה: פרטים אישיים · פרטי קשר · מסמכים (צפייה בתוך הדף + הורדה, דרך Signed URL ל-5 דקות) · שאלון · הזמנה · היסטוריה |
-| ↳ פעולות לפי סטטוס | **אישור** (חלון: סכום + תאריך תוקף, ערכי ברירת מחדל מההגדרות) · **דחייה** (סיבה, נכנסת למייל) · **קביעת איסוף** (לוח שנה + שעה) · **סגירת תיק לארכיון** |
-| `/admin/products` | הוספה/עריכה/הסתרה של מוצרים ותמונות |
-| `/admin/settings` | קוד כניסה לטופס, מייל להתראות, ברירות מחדל לתקציב, טקסטים של מיילים |
+| ↳ פעולות לפי סטטוס | **אישור** (חלון: ברכה מזינה סכום + תאריך תוקף לכל כלה) · **דחייה** (סיבה, נכנסת למייל) · **קביעת איסוף** (לוח שנה + שעה + כתובת איסוף, נקבעת בכל פעם) · **סגירת תיק לארכיון** |
+| `/admin/products` | הוספה/עריכה/הסתרה של מוצרים ותמונות; למוצרי ביגוד – רשימת מידות וצבעים. אין ניהול מלאי |
+| `/admin/settings` | קוד כניסה לטופס, מייל להתראות, טקסטים של מיילים |
 
 הבא/הקודם בתוך תיק כמו היום.
 
@@ -196,7 +197,7 @@ submitted ──approve(amount, expiry)──► approved ──submitOrder─�
 | 7 | נקבע איסוף | כלה | תאריך ושעה, כתובת, "נא לתאם הגעה יום לפני" |
 | 8 (מומלץ) | יום לפני האיסוף | כלה | תזכורת אוטומטית (Vercel Cron) |
 
-כל המיילים: תבנית אחת בעיצוב המותג, RTL, נשלחים מ-`noreply@royalbrides.co.il` עם reply-to לברכה. כל שליחה נרשמת ב-`events` (כולל כישלון), ואפשר "שליחה מחדש" מהתיק.
+כל המיילים: תבנית אחת בעיצוב המותג, RTL, נשלחים מ-`noreply@royalbrides.co.il` עם reply-to ל-`bracha@bjs.co.il`. התראות למנהלת נשלחות ל-`bracha@bjs.co.il`. כל שליחה נרשמת ב-`events` (כולל כישלון), ואפשר "שליחה מחדש" מהתיק.
 
 ---
 
@@ -207,7 +208,7 @@ submitted ──approve(amount, expiry)──► approved ──submitOrder─�
 - Rate limiting על הטופס, ההתחברות וה-OTP. Honeypot / Cloudflare Turnstile (חינם) נגד ספאם.
 - סיסמת מנהלת ב-argon2, cookie `httpOnly`+`secure`+`sameSite`.
 - לוג פעולות (`events`): מי אישר/דחה/צפה במסמכים ומתי.
-- מדיניות שמירה: מחיקת מסמכים מזהים X חודשים אחרי ארכוב (להחליט – למשל 12), ממומש כ-Cron.
+- מדיניות שמירה: **התיקים והמסמכים נשמרים לצמיתות** (החלטת הארגון). לכן: גישה למסמכים בארכיון רק למנהלת, כל צפייה נרשמת בלוג, וגיבוי מוצפן.
 - גיבוי לילי מוצפן.
 
 ---
@@ -247,14 +248,14 @@ royal-brides/
 | שלב | תוכן | הערכה |
 |---|---|---|
 | 0 | ✅ מחקר הושלם (טופס, פורטל, מוצרים, קוד). נשאר: נוסח המיילים מ-Automations | – |
-| 1 | שלד: Next.js, Tailwind RTL, Drizzle+Neon, CI, deploy ל-Vercel על תת-דומיין זמני (`new.royalbrides.co.il`) | 1 יום |
+| 1 | שלד: Next.js, Tailwind RTL, Drizzle+Neon, CI, deploy ל-Vercel על כתובת זמנית של Vercel | 1 יום |
 | 2 | טופס הזכאות מקצה לקצה (קוד גישה, 2 שלבים, העלאה ל-R2, פופ-אפ, 2 מיילים) | 2 ימים |
 | 3 | פורטל מנהלת: התחברות, רשימה, תיק כלה, צפייה/הורדת קבצים, אישור/דחייה + מיילים | 2 ימים |
 | 4 | חנות: ניהול מוצרים, OTP לכלה, קטלוג, עגלה עם תקציב, שליחת הזמנה + מיילים | 2 ימים |
 | 5 | איסוף + ארכיון: לוח שנה, מייל איסוף, תזכורת Cron, סגירת תיק | 1 יום |
 | 6 | הקשחה: rate limit, Turnstile, Sentry, uptime, גיבוי, בדיקות Playwright לכל הזרימה | 1 יום |
 | 7 | הגירה: ייצוא CSV + קבצים מ-Wix, סקריפט ייבוא, ייבוא מוצרים, בדיקה עם ברכה | 1 יום |
-| 8 | עלייה לאוויר: DNS של `royalbrides.co.il` ל-Vercel, אימות דומיין ב-Resend, ניטור, השארת Wix במצב קריאה לשבועיים ואז ביטול | 0.5 יום |
+| 8 | עלייה לאוויר: DNS של `כלותמלכות.ישראל` (`xn--9dbaqbdbn9ge.xn--4dbrk0ce`) ל-Vercel + הפניה מ-`royalbrides.co.il`, אימות דומיין ב-Resend, ניטור, השארת Wix במצב קריאה לשבועיים ואז ביטול | 0.5 יום |
 
 **סה"כ: כ-10–11 ימי עבודה.**
 
@@ -271,11 +272,16 @@ royal-brides/
 
 ---
 
-## 10. החלטות פתוחות (צריך ממך)
-1. צילומי מסך של Automations ו-Triggered Emails מהדשבורד של Wix (אם הוגדרו), כדי לשמר את נוסח המיילים.
-2. האם לכל כלה סכום שונה או סכום קבוע? ומה תוקף ברירת המחדל?
-3. האם למוצרים יש מלאי/מידות/צבעים?
-4. איסוף: תאריך בלבד או גם שעה? כתובת קבועה?
-5. כמה זמן לשמור מסמכים אחרי ארכוב?
-6. מנהלת אחת או כמה? (המערכת תתמוך בכמה)
-7. הארגון מוגדר כעמותה/ללא מטרות רווח? (משפיע על Vercel Hobby מול Pro)
+## 10. החלטות שהתקבלו
+- **תקציב:** ברכה קובעת סכום ותוקף לכל כלה בנפרד.
+- **מוצרים:** ללא הגבלת כמות. לביגוד יש מידות וצבעים.
+- **איסוף:** תאריך + שעה + כתובת שנקבעת בכל פעם.
+- **ארכיון:** שמירה לצמיתות.
+- **מייל המנהלת:** `bracha@bjs.co.il`.
+- **דומיין:** `כלותמלכות.ישראל` (punycode: `xn--9dbaqbdbn9ge.xn--4dbrk0ce`).
+
+## 11. עוד פתוח
+1. נוסח המיילים (אם אין ב-Wix – אכתוב ואתם תאשרו).
+2. מנהלת אחת או כמה?
+3. האם הארגון עמותה/ללא מטרות רווח? (Vercel Hobby מול Pro)
+4. אצל מי רשום `כלותמלכות.ישראל` ומי מנהל את ה-DNS? והאם `royalbrides.co.il` נשאר (מומלץ: לשליחת מיילים + הפניה)?
