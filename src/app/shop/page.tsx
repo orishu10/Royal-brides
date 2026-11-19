@@ -41,16 +41,16 @@ export default async function ShopPage() {
   } else if (bride.status === "ordered" || bride.status === "pickup_scheduled") {
     const order = await getOrderForBride(bride.id);
     content = (
-      <section className="mx-auto max-w-xl rounded-2xl bg-white p-6 shadow-sm">
-        <h1 className="mb-4 text-xl font-bold">ההזמנה שלך</h1>
+      <section className="card mx-auto max-w-xl rounded-t-[120px] px-6 pt-12 pb-6">
+        <h1 className="mb-5 text-center font-display text-3xl">ההזמנה שלך</h1>
         {bride.status === "pickup_scheduled" && bride.pickupAt ? (
-          <div className="mb-5 rounded-lg bg-green-50 p-4">
+          <div className="mb-5 rounded-2xl bg-sage p-4 text-sage-ink">
             <p className="font-bold">מועד האיסוף: {formatDateTime(bride.pickupAt)}</p>
             {bride.pickupAddress && <p>כתובת: {bride.pickupAddress}</p>}
             <p className="mt-1 text-sm">נא לתאם הגעה יום לפני המועד.</p>
           </div>
         ) : (
-          <p className="mb-5 rounded-lg bg-sand/50 p-4">ההזמנה התקבלה. נעדכן אותך במייל על מועד ומקום האיסוף.</p>
+          <p className="mb-5 rounded-2xl bg-petal p-4">ההזמנה התקבלה. נעדכן אותך במייל על מועד ומקום האיסוף.</p>
         )}
         {order && <OrderSummary order={order} />}
       </section>
@@ -64,17 +64,17 @@ export default async function ShopPage() {
           : bride.status === "rejected"
             ? "לצערנו הבקשה לא אושרה. לפרטים ניתן להשיב למייל שקיבלת."
             : "תוקף הזכאות להזמנה הסתיים. לבירורים ניתן לפנות אלינו במייל.";
-    content = <p className="mx-auto max-w-md rounded-2xl bg-white p-8 text-center shadow-sm">{message}</p>;
+    content = <p className="card mx-auto max-w-md rounded-t-[120px] px-8 pt-14 pb-8 text-center text-lg">{message}</p>;
   }
 
   return (
-    <div className="min-h-dvh bg-cream">
-      <header className="border-b border-sand bg-white">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+    <div className="min-h-dvh">
+      <header className="mx-auto max-w-6xl px-4 pt-5">
+        <div className="card flex items-center gap-3 px-5 py-3">
           <Image src="/brand/logo-rb.png" alt="כלות מלכות" width={670} height={552} className="h-9 w-auto" />
-          <span className="font-semibold">שלום {bride.firstName}</span>
+          <span className="font-display text-xl">שלום {bride.firstName}</span>
           <form action={logout} className="ms-auto">
-            <button className="text-sm text-gold-dark hover:underline">יציאה</button>
+            <button className="min-h-11 px-2 text-sm text-rose-dark hover:underline">יציאה</button>
           </form>
         </div>
       </header>

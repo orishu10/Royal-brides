@@ -34,10 +34,10 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <Link href="/admin/products" className="mb-4 inline-block text-sm text-gold-dark hover:underline">
+      <Link href="/admin/products" className="mb-4 inline-block text-sm text-rose-dark hover:underline">
         → חזרה למוצרים
       </Link>
-      <h1 className="mb-4 text-2xl font-bold">{values.id ? values.name : "מוצר חדש"}</h1>
+      <h1 className="mb-4 font-display text-3xl">{values.id ? values.name : "מוצר חדש"}</h1>
       <ProductForm product={values} />
     </>
   );

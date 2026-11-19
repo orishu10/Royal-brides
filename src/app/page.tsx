@@ -1,34 +1,58 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Pearls } from "@/components/pearls";
 
 export const metadata: Metadata = { robots: { index: true, follow: false } };
 
+const STEPS = ["טופס ומסמכים", "אישור במייל", "בחירת מוצרים"];
+
 export default function HomePage() {
   return (
-    <main className="bg-silk flex min-h-dvh flex-col items-center justify-center px-4 py-12 text-center">
-      <Image
-        src="/brand/logo-full.png"
-        alt="Royal Brides – כלות מלכות"
-        width={1091}
-        height={992}
-        priority
-        className="h-auto w-56 sm:w-72"
-      />
-      <h1 className="mt-10 text-2xl font-bold text-gold-dark sm:text-3xl">כלה יקרה, ברוכה הבאה לכלות מלכות!</h1>
-      <p className="mt-3 max-w-md text-lg text-gold-dark/90">
-        אנו שמחים ומתרגשים ללוות אותך ברגעים המשמעותיים ביותר בחייך.
-      </p>
-      <p className="mt-10 text-muted">לבדיקת זכאותך, אנא מלאי את הטופס:</p>
-      <Link href="/apply" className="btn-outline mt-3 bg-white/70 px-10 text-lg">
-        בדיקת זכאות
-      </Link>
-      <Link href="/shop" className="mt-8 text-sm text-gold-dark underline-offset-4 hover:underline">
-        כלה שאושרה? כניסה לבחירת המוצרים
-      </Link>
-      <Link href="/privacy" className="mt-10 text-xs text-muted hover:underline">
-        מדיניות פרטיות
-      </Link>
+    <main className="flex min-h-dvh flex-col items-center px-6 py-8">
+      <div className="flex w-full max-w-sm flex-1 flex-col items-center">
+        {/* The arch window */}
+        <section className="arch card w-full p-2.5">
+          <div className="arch flex flex-col items-center border border-rose px-6 pt-12 pb-7 text-center">
+            <Image
+              src="/brand/logo-full.png"
+              alt="Royal Brides – כלות מלכות"
+              width={1091}
+              height={992}
+              priority
+              className="h-auto w-36"
+            />
+            <Pearls className="mt-4" />
+            <h1 className="mt-4 font-display text-[32px] leading-tight">
+              כלה יקרה,
+              <br />
+              ברוכה הבאה
+            </h1>
+            <p className="mt-2.5 leading-relaxed text-muted">אנו שמחים ומתרגשים ללוות אותך ברגעים המשמעותיים ביותר בחייך.</p>
+          </div>
+        </section>
+
+        <ol className="mt-5 flex w-full gap-2">
+          {STEPS.map((s, i) => (
+            <li key={s} className="flex-1 rounded-t-[40px] rounded-b-2xl bg-petal px-1.5 pt-3.5 pb-3 text-center">
+              <div className="font-display text-2xl text-rose">{i + 1}</div>
+              <div className="text-[13px]">{s}</div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="min-h-8 flex-1" />
+
+        <Link href="/apply" className="btn-primary h-14 w-full text-lg">
+          בדיקת זכאות
+        </Link>
+        <Link href="/shop" className="mt-4 font-semibold text-rose-dark underline underline-offset-4">
+          כלה שאושרה? כניסה לבחירת המוצרים
+        </Link>
+        <Link href="/privacy" className="mt-4 text-xs text-muted hover:underline">
+          מדיניות פרטיות
+        </Link>
+      </div>
     </main>
   );
 }

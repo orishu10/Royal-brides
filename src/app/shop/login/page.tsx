@@ -9,8 +9,8 @@ export const metadata: Metadata = { title: "כניסת כלה | כלות מלכ�
 export default async function BrideLoginPage() {
   if (await getBride()) redirect("/shop");
   return (
-    <main className="bg-silk flex min-h-dvh flex-col items-center justify-center px-4">
-      <Image src="/brand/logo-rb.png" alt="" width={670} height={552} className="mb-6 h-auto w-24" />
+    <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
+      <Image src="/brand/logo-rb.png" alt="" width={670} height={552} className="mb-5 h-auto w-20" />
       <BrideLoginForm />
     </main>
   );

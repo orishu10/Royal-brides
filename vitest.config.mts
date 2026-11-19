@@ -18,6 +18,8 @@ export default defineConfig({
       ADMIN_NOTIFY_EMAIL: "admin@example.com",
       RESEND_API_KEY: "",
       R2_BUCKET: "",
+      LOCAL_EMAIL_DIR: ".data/test/emails",
+      LOCAL_UPLOAD_DIR: ".data/test/uploads",
     },
     fileParallelism: false,
   },

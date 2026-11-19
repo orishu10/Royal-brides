@@ -17,7 +17,7 @@ export function PickupForm(props: { brideId: string; defaultDateTime: string; de
     );
   }
   return (
-    <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-gold/40 bg-cream p-4">
+    <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-rose/40 bg-blush p-4">
       <p className="font-semibold">{props.isChange ? "שינוי מועד האיסוף" : "קביעת מועד איסוף"}</p>
       <label className="block">
         <span className="mb-1 block text-sm">תאריך ושעה</span>
@@ -29,7 +29,7 @@ export function PickupForm(props: { brideId: string; defaultDateTime: string; de
       </label>
       <p className="text-sm text-muted">יישלח לכלה מייל עם המועד והכתובת, ובקשה לתאם הגעה יום לפני. יום לפני האיסוף תישלח תזכורת אוטומטית.</p>
       {state && !state.ok && <p className="text-sm text-red-700">{state.error}</p>}
-      <button disabled={pending} className="btn-gold">
+      <button disabled={pending} className="btn-primary">
         {pending ? "שומרת..." : "שמירה ושליחת מייל"}
       </button>
     </form>
@@ -52,7 +52,7 @@ export function CloseFileButton({ brideId, label }: { brideId: string; label: st
             if (res && !res.ok) setError(res.error);
           });
         }}
-        className="btn w-full border-2 border-ink/70 text-ink hover:bg-sand"
+        className="btn w-full border-2 border-ink/70 text-ink hover:bg-petal"
       >
         {pending ? "סוגרת..." : label}
       </button>

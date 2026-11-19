@@ -31,11 +31,13 @@ test("full bride journey", async ({ browser }) => {
   const bride = await (await browser.newContext()).newPage();
   const admin = await (await browser.newContext()).newPage();
 
-  // 1. Application form
+  // 1. Application form (step 1 is validated before moving on)
   await bride.goto("/");
   await bride.getByRole("link", { name: "בדיקת זכאות" }).click();
   await bride.fill("#code", "06130");
   await bride.click("button:has-text('כניסה')");
+  await bride.click("button:has-text('המשך למסמכים')");
+  await expect(bride.getByText("נא למלא שם פרטי")).toBeVisible(); // empty step 1 can't continue
   for (const [field, value] of Object.entries({
     firstName: "שרה",
     lastName: "כהן",
@@ -50,11 +52,13 @@ test("full bride journey", async ({ browser }) => {
     await bride.fill(`#${field}`, value);
   }
   await bride.selectOption("#community", "ספרדי");
+  await bride.click("button:has-text('המשך למסמכים')");
+  await expect(bride.getByText("שלב 2 מתוך 2")).toBeVisible();
   for (const kind of DOCS) await bride.setInputFiles(`input[name=${kind}]`, PDF);
-  await bride.click("button:has-text('שליחה')");
+  await bride.click("button:has-text('שליחת הבקשה')");
   await expect(bride.getByText("יש לאשר את מדיניות הפרטיות")).toBeVisible(); // consent is required
   await bride.check("input[name=privacyConsent]");
-  await bride.click("button:has-text('שליחה')");
+  await bride.click("button:has-text('שליחת הבקשה')");
   await expect(bride.getByRole("heading", { name: "תודה על מילוי השאלון!" })).toBeVisible();
   expect(emails("application_received")).toHaveLength(1);
   expect(emails("application_new_admin")).toHaveLength(1);
@@ -80,7 +84,7 @@ test("full bride journey", async ({ browser }) => {
   await bride.click("button:has-text('כניסה')");
   await expect(bride.getByText("נותר לך")).toBeVisible();
 
-  const card = (name: string) => bride.locator("div.rounded-xl", { has: bride.locator(`div.font-semibold:text-is("${name}")`) });
+  const card = (name: string) => bride.locator("div.card", { has: bride.locator(`div.font-display:text-is("${name}")`) });
   await card("סט כלי מיטה").getByRole("button").click(); // ₪500
   await expect(card("מכשיר פנקייק").getByRole("button")).toHaveText("חורג מהסכום"); // ₪200 > ₪100 left
   await card("שעון שבת 24 שעות").getByRole("button").click(); // ₪20

@@ -65,7 +65,7 @@ export function ProductForm({ product }: { product: ProductFormValues }) {
           <span className="text-xs text-muted">מספר נמוך = מוצג קודם</span>
         </label>
         <label className="flex items-center gap-2 self-center pt-4">
-          <input name="active" type="checkbox" defaultChecked={product.active} className="h-5 w-5 accent-gold" />
+          <input name="active" type="checkbox" defaultChecked={product.active} className="h-5 w-5 accent-rose" />
           <span className="font-semibold">מוצג לכלות</span>
         </label>
         <div className="sm:col-span-2">
@@ -81,7 +81,7 @@ export function ProductForm({ product }: { product: ProductFormValues }) {
         </div>
       </div>
       <div className="flex gap-3 pt-2">
-        <button disabled={pending} className="btn-gold">
+        <button disabled={pending} className="btn-primary">
           {pending ? "שומרת..." : "שמירה"}
         </button>
         <Link href="/admin/products" className="btn-outline">

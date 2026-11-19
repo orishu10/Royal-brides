@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/assistant";
+import "@fontsource/bellefair/hebrew-400.css";
+import "@fontsource/bellefair/latin-400.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

@@ -9,8 +9,8 @@ export const metadata: Metadata = { title: "כניסת מנהלת | כלות מ�
 export default async function AdminLoginPage() {
   if (await getAdmin()) redirect("/admin");
   return (
-    <main className="bg-silk flex min-h-dvh flex-col items-center justify-center px-4">
-      <Image src="/brand/logo-rb.png" alt="" width={670} height={552} className="mb-6 h-auto w-24" />
+    <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
+      <Image src="/brand/logo-rb.png" alt="" width={670} height={552} className="mb-5 h-auto w-20" />
       <LoginForm />
     </main>
   );

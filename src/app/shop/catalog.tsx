@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { CATEGORIES, MAX_QUANTITY_PER_LINE } from "@/lib/catalog";
 import { formatShekels } from "@/lib/format";
+import { Pearls } from "@/components/pearls";
 import { submitOrder } from "./actions";
 
 export type CatalogProduct = {
@@ -83,35 +84,38 @@ export function Catalog(props: { brideId: string; products: CatalogProduct[]; bu
 
   return (
     <>
-      {/* Budget bar */}
-      <div className="sticky top-0 z-20 -mx-4 mb-5 border-b border-sand bg-cream/95 px-4 py-3 backdrop-blur">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <div>
-            <span className="text-sm text-muted">נותר לך: </span>
-            <b className={`text-lg ${remaining < 0 ? "text-red-700" : "text-gold-dark"}`}>{formatShekels(remaining)}</b>
-            <span className="text-sm text-muted"> מתוך {formatShekels(budgetAgorot)} · עד {props.expiresOn}</span>
+      <section className="mb-6 flex flex-col-reverse items-stretch gap-5 sm:flex-row sm:items-end">
+        <div className="flex-1">
+          <h1 className="font-display text-4xl">הבחירות שלך</h1>
+          {usedCategories.length > 1 && (
+            <nav className="mt-4 flex flex-wrap gap-2" aria-label="קטגוריות">
+              {[null, ...usedCategories].map((c) => (
+                <button
+                  key={c ?? "all"}
+                  onClick={() => setCategory(c)}
+                  aria-pressed={category === c}
+                  className={`min-h-11 rounded-full px-5 text-sm font-semibold transition ${category === c ? "bg-ink text-white" : "bg-white hover:bg-petal"}`}
+                >
+                  {c ?? "כל המוצרים"}
+                </button>
+              ))}
+            </nav>
+          )}
+        </div>
+        {/* Budget – an arch */}
+        <div className="card rounded-t-[90px] rounded-b-3xl px-6 pt-6 pb-4 text-center sm:w-80">
+          <div className="text-sm text-muted">נותר לך לבחירה</div>
+          <div className={`font-display text-4xl leading-tight ${remaining < 0 ? "text-red-700" : "text-rose"}`}>{formatShekels(remaining)}</div>
+          <div className="text-sm text-muted">
+            מתוך {formatShekels(budgetAgorot)} · עד {props.expiresOn}
           </div>
-          <button onClick={() => setCartOpen(true)} className="btn-gold ms-auto py-2">
-            🛍 הסל שלי ({itemCount}) · {formatShekels(total)}
+          <button onClick={() => setCartOpen(true)} className="btn-primary mt-3 w-full">
+            <CartIcon /> הסל שלי ({itemCount}) · {formatShekels(total)}
           </button>
         </div>
-      </div>
+      </section>
 
-      {usedCategories.length > 1 && (
-        <nav className="mb-5 flex flex-wrap gap-2">
-          {[null, ...usedCategories].map((c) => (
-            <button
-              key={c ?? "all"}
-              onClick={() => setCategory(c)}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold ${category === c ? "bg-gold text-white" : "bg-white hover:bg-sand"}`}
-            >
-              {c ?? "כל המוצרים"}
-            </button>
-          ))}
-        </nav>
-      )}
-
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
         {visible.map((p) => (
           <ProductCard key={p.id} product={p} remaining={remaining} onAdd={add} />
         ))}
@@ -125,13 +129,13 @@ export function Catalog(props: { brideId: string; products: CatalogProduct[]; bu
             role="dialog"
             aria-label="הסל שלי"
           >
-            <div className="flex items-center justify-between border-b border-sand p-4">
-              <h2 className="text-lg font-bold">הסל שלי</h2>
+            <div className="flex items-center justify-between border-b border-petal p-4">
+              <h2 className="font-display text-2xl">הסל שלי</h2>
               <button onClick={() => setCartOpen(false)} aria-label="סגירה" className="text-2xl leading-none">
                 ×
               </button>
             </div>
-            <ul className="flex-1 divide-y divide-sand/70 overflow-y-auto px-4">
+            <ul className="flex-1 divide-y divide-petal/70 overflow-y-auto px-4">
               {cart.map((l) => {
                 const p = byId.get(l.productId)!;
                 const k = lineKey(l);
@@ -144,14 +148,14 @@ export function Catalog(props: { brideId: string; products: CatalogProduct[]; bu
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => setQuantity(k, l.quantity - 1)} className="h-8 w-8 rounded border border-sand" aria-label="הפחתה">
+                      <button onClick={() => setQuantity(k, l.quantity - 1)} className="h-8 w-8 rounded border border-petal" aria-label="הפחתה">
                         −
                       </button>
                       <span className="w-6 text-center tabular-nums">{l.quantity}</span>
                       <button
                         onClick={() => setQuantity(k, Math.min(l.quantity + 1, MAX_QUANTITY_PER_LINE))}
                         disabled={p.priceAgorot > remaining}
-                        className="h-8 w-8 rounded border border-sand disabled:opacity-40"
+                        className="h-8 w-8 rounded border border-petal disabled:opacity-40"
                         aria-label="הוספה"
                       >
                         +
@@ -163,7 +167,7 @@ export function Catalog(props: { brideId: string; products: CatalogProduct[]; bu
               })}
               {cart.length === 0 && <li className="py-10 text-center text-muted">הסל ריק</li>}
             </ul>
-            <div className="space-y-3 border-t border-sand p-4">
+            <div className="space-y-3 border-t border-petal p-4">
               <div className="flex justify-between font-bold">
                 <span>סה&quot;כ</span>
                 <span>{formatShekels(total)}</span>
@@ -177,7 +181,7 @@ export function Catalog(props: { brideId: string; products: CatalogProduct[]; bu
                   {error}
                 </p>
               )}
-              <button onClick={send} disabled={sending || cart.length === 0 || remaining < 0} className="btn-gold w-full text-lg">
+              <button onClick={send} disabled={sending || cart.length === 0 || remaining < 0} className="btn-primary w-full text-lg">
                 {sending ? "שולחת..." : "שליחת הזמנה"}
               </button>
             </div>
@@ -186,20 +190,20 @@ export function Catalog(props: { brideId: string; products: CatalogProduct[]; bu
       )}
 
       {done && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
-            <div className="text-4xl text-gold" aria-hidden>
-              ♛
-            </div>
-            <h2 className="mt-3 text-2xl font-bold">תודה שרכשת!</h2>
-            <p className="mt-3 leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
+          <div className="arch w-full max-w-sm bg-white p-2.5 shadow-xl">
+            <div className="arch border border-rose px-6 pt-12 pb-7 text-center">
+            <Pearls />
+            <h2 className="mt-4 font-display text-3xl">תודה שרכשת!</h2>
+            <p className="mt-3 leading-relaxed text-muted">
               ההזמנה התקבלה ונשלח אלייך מייל עם הפרטים.
               <br />
               נעדכן אותך במייל על מועד ומקום האיסוף.
             </p>
-            <button onClick={() => router.refresh()} className="btn-gold mt-6 w-full">
+            <button onClick={() => router.refresh()} className="btn-primary mt-6 w-full">
               לצפייה בהזמנה
             </button>
+            </div>
           </div>
         </div>
       )}
@@ -223,21 +227,20 @@ function ProductCard({
   const tooExpensive = p.priceAgorot > remaining;
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm">
-      <div className="flex aspect-square items-center justify-center bg-sand/40">
+    <div className="card flex flex-col rounded-t-[160px] rounded-b-3xl p-2 pb-3">
+      <div className="arch-frame flex items-center justify-center overflow-hidden border border-line bg-petal">
         {p.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- served by our own route, already sized
           <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <span className="text-4xl text-gold/50" aria-hidden>
-            ♛
-          </span>
+          <Pearls />
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-3">
-        <div className="font-semibold leading-tight">{p.name}</div>
+      <div className="flex flex-1 flex-col gap-2 px-1.5 pt-3">
+        <span className="self-start rounded-full bg-sage px-2.5 py-0.5 text-xs text-sage-ink">{p.category}</span>
+        <div className="font-display text-xl leading-tight">{p.name}</div>
         {p.description && <p className="text-xs text-muted">{p.description}</p>}
-        <div className="font-bold text-gold-dark">{formatShekels(p.priceAgorot)}</div>
+        <div className="text-lg font-bold">{formatShekels(p.priceAgorot)}</div>
         {p.sizes.length > 0 && (
           <select value={size} onChange={(e) => setSize(e.target.value)} className="field py-1.5 text-sm" aria-label="מידה">
             <option value="">מידה...</option>
@@ -261,11 +264,19 @@ function ProductCard({
             setTimeout(() => setAdded(false), 1200);
           }}
           disabled={missing || tooExpensive}
-          className="btn-outline mt-auto py-2 text-sm"
+          className="btn-soft mt-auto py-2 text-sm"
         >
           {added ? "✓ נוסף לסל" : tooExpensive ? "חורג מהסכום" : missing ? "בחרי אפשרות" : "הוספה לסל"}
         </button>
       </div>
     </div>
+  );
+}
+
+function CartIcon() {
+  return (
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
+      <path d="M3 6 H15 L14 16 H4 Z M6 6 V4 a3 3 0 0 1 6 0 V6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
   );
 }

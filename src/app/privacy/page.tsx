@@ -7,14 +7,14 @@ export const metadata: Metadata = { title: "מדיניות פרטיות | כלו
 // When the text changes, bump PRIVACY_POLICY_VERSION in src/lib/application.ts.
 export default function PrivacyPage() {
   return (
-    <main className="bg-silk min-h-dvh px-4 py-10">
+    <main className="bg-blush min-h-dvh px-4 py-10">
       <article className="mx-auto max-w-2xl space-y-5 rounded-2xl bg-white p-6 leading-relaxed shadow-sm sm:p-10">
         <h1 className="text-2xl font-bold">מדיניות פרטיות</h1>
         <p className="text-sm text-muted">עודכן: נובמבר 2026</p>
 
         <Section title="מי אנחנו">
           האתר &quot;כלות מלכות&quot; מופעל על ידי [שם הארגון ומספר רישום], לצורך סיוע לכלות לקראת חתונתן. לפניות בנושא פרטיות:{" "}
-          <a href="mailto:bracha@bjs.co.il" className="text-gold-dark underline" dir="ltr">
+          <a href="mailto:bracha@bjs.co.il" className="text-rose-dark underline" dir="ltr">
             bracha@bjs.co.il
           </a>
           .
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
           את רשאית לעיין במידע עלייך, ולבקש לתקן או למחוק מידע שאינו נכון, שלם, ברור או מעודכן, בפנייה לכתובת המייל שלמעלה.
         </Section>
 
-        <Link href="/" className="inline-block text-gold-dark underline">
+        <Link href="/" className="inline-block text-rose-dark underline">
           חזרה לדף הבית
         </Link>
       </article>

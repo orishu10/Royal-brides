@@ -12,7 +12,7 @@ export default function AdminError({ error, reset }: { error: Error & { digest?:
         {error.digest ?? "—"}
       </code>
       <div className="mt-6 flex justify-center gap-3">
-        <button onClick={reset} className="btn-gold">
+        <button onClick={reset} className="btn-primary">
           נסי שוב
         </button>
         <Link href="/admin" className="btn-outline">

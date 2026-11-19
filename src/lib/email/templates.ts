@@ -2,7 +2,7 @@
 // To change wording – edit the text here.
 import type { Email } from "./send";
 
-const GOLD = "#a8875a";
+const ROSE = "#8e4352";
 
 export function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) =>
@@ -13,21 +13,21 @@ export function escapeHtml(s: string) {
 function layout(title: string, body: string) {
   return `<!doctype html>
 <html lang="he" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title></head>
-<body style="margin:0;background:#f7f3ec;font-family:Arial,Helvetica,sans-serif;color:#3d3528">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f3ec;padding:24px 12px">
+<body style="margin:0;background:#fbf3f1;font-family:Arial,Helvetica,sans-serif;color:#4a2b31">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fbf3f1;padding:24px 12px">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;border:1px solid #e7dfcc">
-        <tr><td style="padding:24px 28px 8px;text-align:center;font-size:22px;color:${GOLD};font-family:Georgia,serif">Royal Brides · כלות מלכות</td></tr>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:120px 120px 20px 20px;border:1px solid #e8c9cc">
+        <tr><td style="padding:40px 28px 8px;text-align:center;font-family:Georgia,serif"><div style="font-size:22px;color:${ROSE}">Royal Brides · כלות מלכות</div><div style="color:#e2c2c5;letter-spacing:6px;font-size:14px;margin-top:6px">• • ● • •</div></td></tr>
         <tr><td style="padding:8px 28px 28px;font-size:16px;line-height:1.7;text-align:right" dir="rtl">${body}</td></tr>
       </table>
-      <div style="font-size:12px;color:#9a8f7c;padding-top:12px">כלות מלכות</div>
+      <div style="font-size:12px;color:#6e4d53;padding-top:12px">כלות מלכות</div>
     </td></tr>
   </table>
 </body></html>`;
 }
 
 function button(href: string, label: string) {
-  return `<p style="text-align:center;margin:24px 0"><a href="${escapeHtml(href)}" style="background:${GOLD};color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;display:inline-block">${escapeHtml(label)}</a></p>`;
+  return `<p style="text-align:center;margin:24px 0"><a href="${escapeHtml(href)}" style="background:${ROSE};color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:28px;display:inline-block;font-weight:bold">${escapeHtml(label)}</a></p>`;
 }
 
 /** 1. To the bride – application received. */
@@ -110,13 +110,13 @@ function orderTable(lines: OrderLine[], total: string) {
   const rows = lines
     .map((l) => {
       const opts = [l.size && `מידה ${l.size}`, l.color && `צבע ${l.color}`].filter(Boolean).join(", ");
-      return `<tr><td style="padding:6px 0">${escapeHtml(l.name)}${opts ? ` <span style="color:#8b806d">(${escapeHtml(opts)})</span>` : ""} × ${l.quantity}</td>
+      return `<tr><td style="padding:6px 0">${escapeHtml(l.name)}${opts ? ` <span style="color:#6e4d53">(${escapeHtml(opts)})</span>` : ""} × ${l.quantity}</td>
               <td style="padding:6px 0;text-align:left;white-space:nowrap">${escapeHtml(l.total)}</td></tr>`;
     })
     .join("");
-  return `<table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e7dfcc;border-bottom:1px solid #e7dfcc;margin:16px 0">${rows}
-    <tr><td style="padding:8px 0;font-weight:bold;border-top:1px solid #e7dfcc">סה"כ</td>
-        <td style="padding:8px 0;text-align:left;font-weight:bold;border-top:1px solid #e7dfcc">${escapeHtml(total)}</td></tr></table>`;
+  return `<table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e8c9cc;border-bottom:1px solid #e8c9cc;margin:16px 0">${rows}
+    <tr><td style="padding:8px 0;font-weight:bold;border-top:1px solid #e8c9cc">סה"כ</td>
+        <td style="padding:8px 0;text-align:left;font-weight:bold;border-top:1px solid #e8c9cc">${escapeHtml(total)}</td></tr></table>`;
 }
 
 /** 5. To the bride – order received. */
@@ -156,7 +156,7 @@ export function pickupScheduledEmail(p: { to: string; firstName: string; when: s
       subject,
       `<p>${escapeHtml(p.firstName)} יקרה,</p>
        <p>ההזמנה שלך מוכנה! נקבע עבורך מועד איסוף:</p>
-       <p style="background:#f7f3ec;border-radius:8px;padding:14px 18px;margin:16px 0">
+       <p style="background:#f5e4e2;border-radius:14px;padding:14px 18px;margin:16px 0">
          <b>מתי:</b> ${escapeHtml(p.when)}<br><b>איפה:</b> ${escapeHtml(p.address)}</p>
        <p><b>חשוב:</b> נא לתאם את ההגעה יום לפני המועד, בהשבה למייל זה.</p>
        <p>בברכת מזל טוב,<br>צוות כלות מלכות</p>`,
@@ -174,7 +174,7 @@ export function pickupReminderEmail(p: { to: string; firstName: string; when: st
       subject,
       `<p>${escapeHtml(p.firstName)} יקרה,</p>
        <p>תזכורת: מחר נקבע איסוף ההזמנה שלך.</p>
-       <p style="background:#f7f3ec;border-radius:8px;padding:14px 18px;margin:16px 0">
+       <p style="background:#f5e4e2;border-radius:14px;padding:14px 18px;margin:16px 0">
          <b>מתי:</b> ${escapeHtml(p.when)}<br><b>איפה:</b> ${escapeHtml(p.address)}</p>
        <p>נא לאשר את הגעתך בהשבה למייל זה.</p>
        <p>מחכות לך,<br>צוות כלות מלכות</p>`,

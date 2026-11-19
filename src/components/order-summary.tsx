@@ -9,7 +9,7 @@ export function OrderSummary({ order }: { order: OrderWithItems }) {
       <table className="w-full text-right text-sm">
         <tbody>
           {order.items.map((i) => (
-            <tr key={i.id} className="border-b border-sand/70">
+            <tr key={i.id} className="border-b border-petal/70">
               <td className="py-2">
                 {i.name}
                 {(i.size || i.color) && (

@@ -22,7 +22,7 @@ export default async function BridesListPage({
   return (
     <>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-bold">כלות</h1>
+        <h1 className="font-display text-3xl">כלות</h1>
         <form className="flex gap-2" action="/admin">
           <input type="hidden" name="tab" value={tab} />
           <input name="q" defaultValue={q} placeholder="חיפוש: שם, ת״ז, טלפון, מייל" className="field w-64 py-2" />
@@ -36,7 +36,7 @@ export default async function BridesListPage({
             key={t}
             href={`/admin?tab=${t}`}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-              t === tab ? "bg-gold text-white" : "bg-white text-ink hover:bg-sand"
+              t === tab ? "bg-rose text-white" : "bg-white text-ink hover:bg-petal"
             }`}
           >
             {TABS[t].label}
@@ -47,7 +47,7 @@ export default async function BridesListPage({
 
       <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
         <table className="w-full min-w-[720px] text-right text-sm">
-          <thead className="bg-sand/60 text-ink">
+          <thead className="bg-petal/60 text-ink">
             <tr>
               <th className="px-4 py-3">שם</th>
               <th className="px-4 py-3">ת״ז</th>
@@ -59,9 +59,9 @@ export default async function BridesListPage({
           </thead>
           <tbody>
             {rows.map((b) => (
-              <tr key={b.id} className="border-t border-sand/70 hover:bg-cream">
+              <tr key={b.id} className="border-t border-petal/70 hover:bg-blush">
                 <td className="px-4 py-3 font-semibold">
-                  <Link href={`/admin/brides/${b.id}`} className="text-gold-dark hover:underline">
+                  <Link href={`/admin/brides/${b.id}`} className="text-rose-dark hover:underline">
                     {b.firstName} {b.lastName}
                   </Link>
                 </td>

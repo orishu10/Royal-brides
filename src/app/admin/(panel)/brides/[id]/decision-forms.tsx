@@ -23,7 +23,7 @@ export function DecisionForms({
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
         {canApprove && (
-          <button type="button" onClick={() => setOpen(open === "approve" ? null : "approve")} className="btn-gold">
+          <button type="button" onClick={() => setOpen(open === "approve" ? null : "approve")} className="btn-primary">
             אישור הבקשה
           </button>
         )}
@@ -35,7 +35,7 @@ export function DecisionForms({
       </div>
 
       {open === "approve" && (
-        <form onSubmit={approve} className="space-y-3 rounded-xl border border-gold/40 bg-cream p-4">
+        <form onSubmit={approve} className="space-y-3 rounded-xl border border-rose/40 bg-blush p-4">
           <p className="font-semibold">אישור – הקצאת סכום לכלה</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
@@ -49,7 +49,7 @@ export function DecisionForms({
           </div>
           <p className="text-sm text-muted">לאחר האישור יישלח לכלה מייל עם הסכום, התוקף וקישור לקטלוג.</p>
           {approveState && !approveState.ok && <p className="text-sm text-red-700">{approveState.error}</p>}
-          <button disabled={approving} className="btn-gold">
+          <button disabled={approving} className="btn-primary">
             {approving ? "מאשרת..." : "אישור ושליחת מייל"}
           </button>
         </form>

@@ -42,7 +42,7 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
   return (
     <>
       <div className="mb-4 flex items-center justify-between text-sm">
-        <Link href={`/admin?tab=${tab}`} className="text-gold-dark hover:underline">
+        <Link href={`/admin?tab=${tab}`} className="text-rose-dark hover:underline">
           → חזרה לרשימת &quot;{TABS[tab].label}&quot;
         </Link>
         <div className="flex gap-4">
@@ -52,10 +52,10 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">
+        <h1 className="font-display text-3xl">
           {bride.firstName} {bride.lastName}
         </h1>
-        <span className="rounded-full bg-sand px-3 py-1 text-sm font-semibold">
+        <span className="rounded-full bg-petal px-3 py-1 text-sm font-semibold">
           {bride.archivedAt ? "בארכיון" : STATUS_LABELS[bride.status]}
         </span>
         <span className="text-sm text-muted">הוגשה {formatDateTime(bride.createdAt)}</span>
@@ -88,7 +88,7 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
 
           <section className="rounded-xl bg-white p-5 shadow-sm">
             <h2 className="mb-3 text-lg font-bold">מסמכים</h2>
-            <ul className="divide-y divide-sand/70">
+            <ul className="divide-y divide-petal/70">
               {documents.map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center gap-3 py-2.5">
                   <span className="min-w-40 font-semibold">{docLabel(d.kind)}</span>
@@ -96,10 +96,10 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
                     {d.mimeType === "application/pdf" ? "PDF" : "תמונה"} · {Math.ceil(d.sizeBytes / 1024)}KB
                   </span>
                   <span className="ms-auto flex gap-4 text-sm">
-                    <a href={`/admin/documents/${d.id}`} target="_blank" rel="noopener" className="text-gold-dark hover:underline">
+                    <a href={`/admin/documents/${d.id}`} target="_blank" rel="noopener" className="text-rose-dark hover:underline">
                       צפייה
                     </a>
-                    <a href={`/admin/documents/${d.id}?download`} className="text-gold-dark hover:underline">
+                    <a href={`/admin/documents/${d.id}?download`} className="text-rose-dark hover:underline">
                       הורדה
                     </a>
                   </span>
@@ -134,7 +134,7 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
               />
             )}
             {bride.pickupAt && (
-              <p className="mb-3 rounded-lg bg-sand/50 p-3 text-sm">
+              <p className="mb-3 rounded-lg bg-petal/50 p-3 text-sm">
                 איסוף: <b>{israelWeekday(bride.pickupAt)}, {formatDateTime(bride.pickupAt)}</b>
                 <br />
                 {bride.pickupAddress}
@@ -166,7 +166,7 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
             <h2 className="mb-3 text-lg font-bold">היסטוריה</h2>
             <ol className="space-y-2 text-sm">
               {events.map((e) => (
-                <li key={e.id} className="border-s-2 border-sand ps-3">
+                <li key={e.id} className="border-s-2 border-petal ps-3">
                   <div className="font-semibold">
                     {EVENT_LABELS[e.type] ?? e.type}
                     {typeof e.payload.subject === "string" && <span className="font-normal">: {e.payload.subject}</span>}

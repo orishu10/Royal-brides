@@ -39,7 +39,7 @@ describe("submitApplication", () => {
 
     const docs = await db.select().from(schema.documents).where(eq(schema.documents.brideId, res.brideId));
     expect(docs).toHaveLength(7);
-    expect(existsSync(path.join(process.cwd(), ".data/uploads", docs[0].storageKey))).toBe(true);
+    expect(existsSync(path.join(process.cwd(), ".data/test/uploads", docs[0].storageKey))).toBe(true);
 
     const events = await db.select().from(schema.events).where(eq(schema.events.brideId, res.brideId));
     expect(events.map((e) => e.type).sort()).toEqual(["application.submitted", "email.sent", "email.sent"]);

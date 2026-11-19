@@ -1,5 +1,6 @@
 "use client";
 
+import { ArchCard } from "@/components/arch-card";
 import { HumanCheck } from "@/components/human-check";
 import { useFormAction } from "@/lib/use-form-action";
 import { loginStep, type LoginState } from "../actions";
@@ -8,8 +9,9 @@ export function BrideLoginForm() {
   const [state, onSubmit, pending] = useFormAction<LoginState>(loginStep, { step: "email" });
 
   return (
-    <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 text-center shadow-sm">
-      <h1 className="text-xl font-bold">כניסת כלה</h1>
+    <ArchCard>
+    <form onSubmit={onSubmit} className="space-y-4">
+      <h1 className="font-display text-3xl">כניסת כלה</h1>
 
       {state.step === "email" ? (
         <>
@@ -48,14 +50,15 @@ export function BrideLoginForm() {
           {state.error}
         </p>
       )}
-      <button type="submit" disabled={pending} className="btn-gold w-full">
+      <button type="submit" disabled={pending} className="btn-primary w-full">
         {pending ? "רגע..." : state.step === "email" ? "שליחת קוד" : "כניסה"}
       </button>
       {state.step === "code" && (
-        <button type="submit" name="resend" value="1" disabled={pending} className="text-sm text-gold-dark underline">
+        <button type="submit" name="resend" value="1" disabled={pending} className="text-sm text-rose-dark underline">
           לא קיבלתי – שלחו שוב
         </button>
       )}
     </form>
+    </ArchCard>
   );
 }
