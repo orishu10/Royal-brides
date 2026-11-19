@@ -1,0 +1,45 @@
+# Render Blueprint – creates the web service from this repo.
+# Secrets (sync: false) are entered once in the Render dashboard.
+services:
+  - type: web
+    name: royal-brides
+    runtime: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    startCommand: npm run db:migrate && npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: APP_URL
+        value: https://xn--9dbaqbdbn9ge.xn--4dbrk0ce
+      - key: ADMIN_NOTIFY_EMAIL
+        value: bracha@bjs.co.il
+      - key: EMAIL_FROM
+        value: "כלות מלכות <noreply@royalbrides.co.il>"
+      - key: EMAIL_REPLY_TO
+        value: bracha@bjs.co.il
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CRON_SECRET
+        sync: false
+      - key: MAINTAINER_EMAIL
+        sync: false
+      - key: NEXT_PUBLIC_TURNSTILE_SITE_KEY
+        sync: false
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false

@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/*
+ * Design "D · Rose Arch": blush + rose from "Rose & Pearls", arches from "Ivory Couture".
+ * Change colors here to re-theme the whole site.
+ */
+@theme {
+  --color-blush: #fbf3f1; /* page background */
+  --color-petal: #f5e4e2; /* soft fills, chips, image placeholders */
+  --color-line: #e8c9cc; /* borders */
+  --color-rose: #8e4352; /* primary: buttons, links, accents */
+  --color-rose-dark: #6f2f3d; /* hover / link text */
+  --color-ink: #4a2b31; /* main text */
+  --color-muted: #6e4d53; /* secondary text (4.5:1 on blush) */
+  --color-sage: #e6eee6; /* category tags, success */
+  --color-sage-ink: #4f6351;
+  --font-sans: "Assistant Variable", Arial, sans-serif;
+  --font-display: "Bellefair", Georgia, serif;
+}
+
+body {
+  background: var(--color-blush);
+  color: var(--color-ink);
+}
+
+@utility field {
+  @apply w-full rounded-2xl border border-line bg-[#fffcfb] px-3.5 py-2.5 text-base outline-none transition focus:border-rose focus:ring-2 focus:ring-rose/20 aria-invalid:border-2 aria-invalid:border-red-700;
+}
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-rose text-white shadow-[0_8px_20px_rgba(142,67,82,0.22)] hover:bg-rose-dark;
+}
+@utility btn-outline {
+  @apply btn border-2 border-rose text-rose-dark hover:bg-petal;
+}
+@utility btn-soft {
+  @apply btn bg-petal text-rose-dark hover:bg-line;
+}
+
+/* The arch: a large rounded top. Browsers shrink the radius to a perfect half-circle on narrow boxes. */
+@utility arch {
+  border-radius: 200px 200px 24px 24px;
+}
+/* Square picture frame with an exact half-circle top. */
+@utility arch-frame {
+  aspect-ratio: 1 / 1;
+  border-radius: 50% 50% 14px 14px / 50% 50% 14px 14px;
+}
+@utility card {
+  @apply rounded-3xl bg-white shadow-[0_8px_24px_rgba(142,67,82,0.08)];
+}

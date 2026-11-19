@@ -1,0 +1,45 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  experimental: {
+    // product photos (up to 5MB) are uploaded through a Server Action
+    serverActions: { bodySizeLimit: "6mb" },
+  },
+  // Old and secondary domains → the main site (APP_URL), keeping the path.
+  async redirects() {
+    const target = process.env.APP_URL;
+    if (!target || target.includes("localhost")) return [];
+    const mainHost = new URL(target).host;
+    return ["royalbrides.co.il", "www.royalbrides.co.il", `www.${mainHost}`].map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: `${target}/:path*`,
+      permanent: true,
+    }));
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
+        ],
+      },
+    ];
+  },
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
+};
+
+export default nextConfig;
