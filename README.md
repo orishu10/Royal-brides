@@ -44,5 +44,9 @@ Form access code (default `06130`) lives in the `settings` table, key `apply_acc
 
 **Debugging:** every action and every email (including failures) is written to the `events` table, per bride.
 
+## Daily jobs
+`.github/workflows/daily.yml` calls `/api/cron/pickup-reminders` every day (reminder email the day before pickup).
+In GitHub → Settings → Secrets and variables → Actions set variable `APP_URL` and secret `CRON_SECRET` (same value as on Render).
+
 ## Deploy (Render)
-`render.yaml` defines the service. In Render: New → Blueprint → this repo, then fill the secret env vars (`DATABASE_URL`, `RESEND_API_KEY`, `R2_*`).
+`render.yaml` defines the service. In Render: New → Blueprint → this repo, then fill the secret env vars (`DATABASE_URL`, `RESEND_API_KEY`, `R2_*`, `CRON_SECRET`).

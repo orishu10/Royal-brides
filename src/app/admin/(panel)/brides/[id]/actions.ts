@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
-import { approveBride, rejectBride, type WorkflowResult } from "@/lib/bride-workflow";
+import { approveBride, closeFile, rejectBride, schedulePickup, type WorkflowResult } from "@/lib/bride-workflow";
 
 export type ActionState = WorkflowResult | null;
 
@@ -20,6 +20,23 @@ export async function approveAction(brideId: string, _prev: ActionState, formDat
 export async function rejectAction(brideId: string, _prev: ActionState, formData: FormData): Promise<ActionState> {
   const admin = await requireAdmin();
   const result = await rejectBride(brideId, admin, String(formData.get("reason") ?? ""));
+  revalidatePath(`/admin/brides/${brideId}`);
+  return result;
+}
+
+export async function pickupAction(brideId: string, _prev: ActionState, formData: FormData): Promise<ActionState> {
+  const admin = await requireAdmin();
+  const result = await schedulePickup(brideId, admin, {
+    localDateTime: String(formData.get("pickupAt") ?? ""),
+    address: String(formData.get("address") ?? ""),
+  });
+  revalidatePath(`/admin/brides/${brideId}`);
+  return result;
+}
+
+export async function closeFileAction(brideId: string): Promise<ActionState> {
+  const admin = await requireAdmin();
+  const result = await closeFile(brideId, admin);
   revalidatePath(`/admin/brides/${brideId}`);
   return result;
 }

@@ -7,6 +7,7 @@ const schema = z.object({
   APP_URL: z.string().url().default("http://localhost:3000"),
   SESSION_SECRET: z.string().min(32, "SESSION_SECRET must be at least 32 characters"),
   ADMIN_NOTIFY_EMAIL: z.string().email(),
+  CRON_SECRET: z.string().min(20).optional(), // protects /api/cron/* (called by GitHub Actions)
 
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("כלות מלכות <noreply@royalbrides.co.il>"),

@@ -3,10 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBrideFile, TABS } from "@/lib/admin-queries";
 import { DOCUMENTS } from "@/lib/application";
-import { formatDate, formatDateTime, formatShekels, isoDateInDays, STATUS_LABELS } from "@/lib/format";
+import { dateToIsraelLocal, formatDate, formatDateTime, formatShekels, isoDateInDays, israelWeekday, STATUS_LABELS } from "@/lib/format";
+import { getSetting } from "@/lib/settings";
 import { OrderSummary } from "@/components/order-summary";
 import { getOrderForBride } from "@/lib/orders";
 import { DecisionForms } from "./decision-forms";
+import { CloseFileButton, PickupForm } from "./file-actions";
 
 export const metadata: Metadata = { title: "תיק כלה | פורטל מנהלת" };
 
@@ -20,6 +22,9 @@ const EVENT_LABELS: Record<string, string> = {
   "document.downloaded": "הורדת מסמך",
   "bride.logged_in": "הכלה נכנסה לאתר",
   "order.submitted": "נשלחה הזמנה",
+  "pickup.scheduled": "נקבע מועד איסוף",
+  "pickup.reminder_sent": "נשלחה תזכורת איסוף",
+  "file.closed": "התיק נסגר והועבר לארכיון",
 };
 
 export default async function BrideFilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -30,6 +35,9 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
   const order = await getOrderForBride(bride.id);
   const docLabel = (kind: string) => DOCUMENTS.find((d) => d.kind === kind)?.label ?? kind;
   const in30Days = isoDateInDays(30);
+  const lastPickupAddress = (await getSetting("last_pickup_address")) ?? "";
+  const canSchedulePickup = !bride.archivedAt && (bride.status === "ordered" || bride.status === "pickup_scheduled");
+  const canClose = !bride.archivedAt && ["pickup_scheduled", "rejected", "approved"].includes(bride.status);
 
   return (
     <>
@@ -125,6 +133,33 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
                 defaultExpiresOn={bride.budgetExpiresOn ?? in30Days}
               />
             )}
+            {bride.pickupAt && (
+              <p className="mb-3 rounded-lg bg-sand/50 p-3 text-sm">
+                איסוף: <b>{israelWeekday(bride.pickupAt)}, {formatDateTime(bride.pickupAt)}</b>
+                <br />
+                {bride.pickupAddress}
+              </p>
+            )}
+            {canSchedulePickup && (
+              <div className="mt-3">
+                <PickupForm
+                  key={bride.pickupAt?.toISOString() ?? "new"}
+                  brideId={bride.id}
+                  isChange={bride.status === "pickup_scheduled"}
+                  defaultDateTime={bride.pickupAt ? dateToIsraelLocal(bride.pickupAt) : ""}
+                  defaultAddress={bride.pickupAddress ?? lastPickupAddress}
+                />
+              </div>
+            )}
+            {canClose && (
+              <div className="mt-3">
+                <CloseFileButton
+                  brideId={bride.id}
+                  label={bride.status === "pickup_scheduled" ? "ההזמנה נאספה – סגירת התיק" : "סגירת התיק (ארכיון)"}
+                />
+              </div>
+            )}
+            {bride.archivedAt && <p className="text-sm text-muted">התיק נסגר ב-{formatDateTime(bride.archivedAt)}</p>}
           </section>
 
           <section className="rounded-xl bg-white p-5 shadow-sm">

@@ -1,0 +1,18 @@
+name: Daily jobs
+
+on:
+  schedule:
+    - cron: "0 15 * * *" # 17:00/18:00 Israel time
+  workflow_dispatch: # can also be run by hand from the Actions tab
+
+jobs:
+  pickup-reminders:
+    runs-on: ubuntu-latest
+    # Needs repo variable APP_URL and secret CRON_SECRET (Settings → Secrets and variables → Actions).
+    if: ${{ vars.APP_URL != '' }}
+    steps:
+      - name: Send pickup reminders for tomorrow
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ vars.APP_URL }}/api/cron/pickup-reminders"

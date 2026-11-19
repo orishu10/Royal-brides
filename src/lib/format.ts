@@ -52,3 +52,27 @@ export function todayInIsrael() {
   const p = israelParts(new Date());
   return `${p.year}-${p.month}-${p.day}`;
 }
+
+/** "2026-12-01T14:30" typed in Israel → the exact moment (Date). Handles summer/winter time. */
+export function israelLocalToDate(local: string): Date | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(local);
+  if (!m) return null;
+  const [y, mo, d, h, mi] = m.slice(1).map(Number);
+  const asUtc = Date.UTC(y, mo - 1, d, h, mi);
+  // How far Israel is ahead of UTC at that moment (2 or 3 hours).
+  const p = israelParts(new Date(asUtc));
+  const offset = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute) - asUtc;
+  const result = new Date(asUtc - offset);
+  return Number.isNaN(result.getTime()) ? null : result;
+}
+
+/** Date → "2026-12-01T14:30" in Israel time (for datetime-local inputs). */
+export function dateToIsraelLocal(d: Date) {
+  const p = israelParts(d);
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+}
+
+/** Hebrew weekday name in Israel, e.g. "יום שלישי". */
+export function israelWeekday(d: Date) {
+  return new Intl.DateTimeFormat("he-IL", { timeZone: TZ, weekday: "long" }).format(d);
+}

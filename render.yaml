@@ -23,6 +23,8 @@ services:
         value: bracha@bjs.co.il
       - key: SESSION_SECRET
         generateValue: true
+      - key: CRON_SECRET
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: RESEND_API_KEY

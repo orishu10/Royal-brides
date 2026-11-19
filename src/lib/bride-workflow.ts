@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, gte, inArray, isNull } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lt, notExists, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import type { Bride } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email/send";
@@ -8,11 +8,13 @@ import {
   approvedEmail,
   newOrderAdminEmail,
   orderConfirmationEmail,
+  pickupReminderEmail,
+  pickupScheduledEmail,
   rejectedEmail,
   type OrderLine,
 } from "@/lib/email/templates";
 import { env } from "@/lib/env";
-import { formatDate, formatShekels, todayInIsrael } from "@/lib/format";
+import { dateToIsraelLocal, formatDate, formatDateTime, formatShekels, israelLocalToDate, israelWeekday, todayInIsrael } from "@/lib/format";
 
 /*
  * The life of a bride's file – every status change goes through this file.
@@ -188,4 +190,105 @@ export async function placeOrder(brideId: string, cart: CartLine[]): Promise<Wor
     { brideId, template: "order_new_admin" },
   );
   return { ok: true };
+}
+
+const pickupText = (d: Date) => `${israelWeekday(d)}, ${formatDateTime(d)}`;
+
+/** Manager sets (or changes) the pickup date, time and address. */
+export async function schedulePickup(
+  brideId: string,
+  actor: Actor,
+  input: { localDateTime: string; address: string },
+): Promise<WorkflowResult> {
+  const pickupAt = israelLocalToDate(input.localDateTime);
+  const address = input.address.trim().slice(0, 300);
+  if (!pickupAt || pickupAt.getTime() < Date.now()) return { ok: false, error: "נא לבחור מועד עתידי" };
+  if (!address) return { ok: false, error: "נא למלא כתובת איסוף" };
+
+  const bride = await transition(
+    brideId,
+    ["ordered", "pickup_scheduled"],
+    { status: "pickup_scheduled", pickupAt, pickupAddress: address },
+    { actor, type: "pickup.scheduled", payload: { pickupAt: input.localDateTime, address } },
+  );
+  if (!bride) return { ok: false, error: "ניתן לקבוע איסוף רק לאחר שהכלה שלחה הזמנה" };
+
+  // Remember the address as the default for next time.
+  await db
+    .insert(schema.settings)
+    .values({ key: "last_pickup_address", value: address })
+    .onConflictDoUpdate({ target: schema.settings.key, set: { value: address } });
+
+  await sendEmail(
+    pickupScheduledEmail({ to: bride.email, firstName: bride.firstName, when: pickupText(pickupAt), address }),
+    { brideId, template: "pickup_scheduled" },
+  );
+  return { ok: true };
+}
+
+/** Manager closes the file (order collected, or a rejected / unused file). It moves to the archive. */
+export async function closeFile(brideId: string, actor: Actor): Promise<WorkflowResult> {
+  const [bride] = await db
+    .update(schema.brides)
+    .set({ archivedAt: new Date(), updatedAt: new Date() })
+    .where(
+      and(
+        eq(schema.brides.id, brideId),
+        isNull(schema.brides.archivedAt),
+        inArray(schema.brides.status, ["pickup_scheduled", "rejected", "approved"]),
+      ),
+    )
+    .returning();
+  if (!bride) return { ok: false, error: "לא ניתן לסגור את התיק במצב הנוכחי" };
+  await db.insert(schema.events).values({ brideId, actor: actor.email, type: "file.closed", payload: { status: bride.status } });
+  return { ok: true };
+}
+
+/**
+ * Daily job: emails every bride whose pickup is tomorrow (Israel time).
+ * Safe to run more than once a day – each pickup gets at most one reminder.
+ */
+export async function sendPickupReminders(): Promise<number> {
+  const tomorrow = new Date(Date.now() + 86_400_000);
+  const start = israelLocalToDate(`${dateToIsraelLocal(tomorrow).slice(0, 10)}T00:00`)!;
+  const end = new Date(start.getTime() + 86_400_000);
+
+  const due = await db
+    .select()
+    .from(schema.brides)
+    .where(
+      and(
+        eq(schema.brides.status, "pickup_scheduled"),
+        isNull(schema.brides.archivedAt),
+        gte(schema.brides.pickupAt, start),
+        lt(schema.brides.pickupAt, end),
+        notExists(
+          db
+            .select({ one: sql`1` })
+            .from(schema.events)
+            .where(
+              and(
+                eq(schema.events.brideId, schema.brides.id),
+                eq(schema.events.type, "pickup.reminder_sent"),
+                // a reminder for THIS pickup time (if it was rescheduled, remind again)
+                sql`${schema.events.payload}->>'pickupAt' = to_char(${schema.brides.pickupAt} at time zone 'Asia/Jerusalem', 'YYYY-MM-DD"T"HH24:MI')`,
+              ),
+            ),
+        ),
+      ),
+    );
+
+  for (const b of due) {
+    await db.insert(schema.events).values({
+      brideId: b.id,
+      actor: "system",
+      type: "pickup.reminder_sent",
+      payload: { pickupAt: dateToIsraelLocal(b.pickupAt!) },
+    });
+    await sendEmail(
+      pickupReminderEmail({ to: b.email, firstName: b.firstName, when: pickupText(b.pickupAt!), address: b.pickupAddress ?? "" }),
+      { brideId: b.id, template: "pickup_reminder" },
+    );
+  }
+  return due.length;
 }

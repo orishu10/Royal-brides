@@ -146,6 +146,42 @@ export function newOrderAdminEmail(p: { to: string; fullName: string; lines: Ord
   };
 }
 
+/** 7. To the bride – pickup scheduled. */
+export function pickupScheduledEmail(p: { to: string; firstName: string; when: string; address: string }): Email {
+  const subject = "מועד איסוף ההזמנה שלך – כלות מלכות";
+  return {
+    to: p.to,
+    subject,
+    html: layout(
+      subject,
+      `<p>${escapeHtml(p.firstName)} יקרה,</p>
+       <p>ההזמנה שלך מוכנה! נקבע עבורך מועד איסוף:</p>
+       <p style="background:#f7f3ec;border-radius:8px;padding:14px 18px;margin:16px 0">
+         <b>מתי:</b> ${escapeHtml(p.when)}<br><b>איפה:</b> ${escapeHtml(p.address)}</p>
+       <p><b>חשוב:</b> נא לתאם את ההגעה יום לפני המועד, בהשבה למייל זה.</p>
+       <p>בברכת מזל טוב,<br>צוות כלות מלכות</p>`,
+    ),
+  };
+}
+
+/** 8. To the bride – reminder the day before pickup. */
+export function pickupReminderEmail(p: { to: string; firstName: string; when: string; address: string }): Email {
+  const subject = "תזכורת: איסוף ההזמנה מחר – כלות מלכות";
+  return {
+    to: p.to,
+    subject,
+    html: layout(
+      subject,
+      `<p>${escapeHtml(p.firstName)} יקרה,</p>
+       <p>תזכורת: מחר נקבע איסוף ההזמנה שלך.</p>
+       <p style="background:#f7f3ec;border-radius:8px;padding:14px 18px;margin:16px 0">
+         <b>מתי:</b> ${escapeHtml(p.when)}<br><b>איפה:</b> ${escapeHtml(p.address)}</p>
+       <p>נא לאשר את הגעתך בהשבה למייל זה.</p>
+       <p>מחכות לך,<br>צוות כלות מלכות</p>`,
+    ),
+  };
+}
+
 /** 2. To the manager – a new bride applied. */
 export function newApplicationAdminEmail(p: {
   to: string;
