@@ -24,6 +24,7 @@ Form access code (default `06130`) lives in the `settings` table, key `apply_acc
 | `npm run lint` / `npm run typecheck` | static checks |
 | `npm run db:generate` | after editing `src/lib/db/schema.ts` – creates a migration in `drizzle/` |
 | `npm run db:migrate` | applies migrations (runs automatically on every Render deploy) |
+| `npm run admin:create -- <email> <manager\|maintainer> "<name>" <password>` | create an admin / reset a password |
 
 ## Where things are
 | Path | What |
@@ -31,6 +32,8 @@ Form access code (default `06130`) lives in the `settings` table, key `apply_acc
 | `src/lib/db/schema.ts` | all tables (single source of truth) |
 | `src/lib/application.ts` | form fields, document list, validation (shared by browser + server) |
 | `src/lib/apply-service.ts` | what happens when a bride submits |
+| `src/lib/bride-workflow.ts` | every status change (approve, reject, ...) – checks, history, emails |
+| `src/lib/admin-queries.ts` | admin list tabs, search, bride file |
 | `src/lib/email/templates.ts` | email wording |
 | `src/lib/email/send.ts` | sending + logging every email to `events` |
 | `src/lib/storage.ts` | private file storage (R2 / local) |

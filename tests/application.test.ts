@@ -47,3 +47,13 @@ describe("applicationSchema", () => {
     expect(applicationSchema.safeParse({ ...valid, weddingDate: "2020-01-01" }).success).toBe(false);
   });
 });
+
+describe("format", async () => {
+  const { formatDate, formatDateTime, formatShekels } = await import("@/lib/format");
+  it("formats dates in Israel time as dd/mm/yyyy", () => {
+    expect(formatDate("2027-02-10")).toBe("10/02/2027");
+    expect(formatDate(new Date("2026-11-19T22:30:00Z"))).toBe("20/11/2026"); // already the 20th in Israel
+    expect(formatDateTime(new Date("2026-11-19T12:05:00Z"))).toBe("19/11/2026 14:05");
+    expect(formatShekels(150050)).toBe("₪1,500.5");
+  });
+});

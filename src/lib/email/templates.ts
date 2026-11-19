@@ -46,6 +46,48 @@ export function applicationReceivedEmail(p: { to: string; firstName: string }): 
   };
 }
 
+/** 3. To the bride – approved, with budget and expiry. */
+export function approvedEmail(p: {
+  to: string;
+  firstName: string;
+  amount: string;
+  expiresOn: string;
+  shopLink: string;
+}): Email {
+  const subject = "מזל טוב! הבקשה שלך אושרה – כלות מלכות";
+  return {
+    to: p.to,
+    subject,
+    html: layout(
+      subject,
+      `<p>${escapeHtml(p.firstName)} יקרה, מזל טוב!</p>
+       <p>שמחים לבשר שהבקשה שלך <b>אושרה</b>.</p>
+       <p>הוקצב עבורך סכום של <b>${escapeHtml(p.amount)}</b> לבחירת מוצרים מהקטלוג שלנו,
+          בתוקף עד <b>${escapeHtml(p.expiresOn)}</b>.</p>
+       <p>לכניסה לקטלוג יש להזין את כתובת המייל הזו, ונשלח אלייך קוד כניסה.</p>
+       ${button(p.shopLink, "לבחירת המוצרים")}
+       <p>בברכת מזל טוב,<br>צוות כלות מלכות</p>`,
+    ),
+  };
+}
+
+/** 4. To the bride – rejected. */
+export function rejectedEmail(p: { to: string; firstName: string; reason?: string | null }): Email {
+  const subject = "עדכון לגבי הבקשה שלך – כלות מלכות";
+  return {
+    to: p.to,
+    subject,
+    html: layout(
+      subject,
+      `<p>${escapeHtml(p.firstName)} יקרה, שלום.</p>
+       <p>לאחר בדיקת הבקשה, לצערנו לא נוכל לאשר אותה הפעם.</p>
+       ${p.reason ? `<p><b>סיבה:</b> ${escapeHtml(p.reason)}</p>` : ""}
+       <p>לשאלות ניתן להשיב למייל זה.</p>
+       <p>מאחלים לך מזל טוב ובניין עדי עד,<br>צוות כלות מלכות</p>`,
+    ),
+  };
+}
+
 /** 2. To the manager – a new bride applied. */
 export function newApplicationAdminEmail(p: {
   to: string;
