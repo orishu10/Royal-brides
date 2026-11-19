@@ -19,16 +19,16 @@ interface Storage {
   remove(key: string): Promise<void>;
 }
 
-const LOCAL_DIR = path.join(process.cwd(), ".data", "uploads");
+const LOCAL_DIR = process.env.LOCAL_UPLOAD_DIR ?? path.join(/*turbopackIgnore: true*/ process.cwd(), ".data", "uploads");
 
 const localStorage: Storage = {
   async put(key, body) {
-    const file = path.join(LOCAL_DIR, key);
+    const file = path.join(/*turbopackIgnore: true*/ LOCAL_DIR, key);
     await mkdir(path.dirname(file), { recursive: true });
     await writeFile(file, body);
   },
-  get: (key) => readFile(path.join(LOCAL_DIR, key)),
-  remove: (key) => rm(path.join(LOCAL_DIR, key), { force: true }),
+  get: (key) => readFile(path.join(/*turbopackIgnore: true*/ LOCAL_DIR, key)),
+  remove: (key) => rm(path.join(/*turbopackIgnore: true*/ LOCAL_DIR, key), { force: true }),
 };
 
 function r2Storage(): Storage {

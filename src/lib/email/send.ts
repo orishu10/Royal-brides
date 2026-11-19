@@ -26,11 +26,11 @@ export async function sendEmail(email: Email, opts: { brideId?: string; template
       });
       if (res.error) error = res.error.message;
     } else {
-      const dir = path.join(process.cwd(), ".data", "emails");
+      const dir = process.env.LOCAL_EMAIL_DIR ?? path.join(/*turbopackIgnore: true*/ process.cwd(), ".data", "emails");
       await mkdir(dir, { recursive: true });
       const name = `${new Date().toISOString().replace(/[:.]/g, "-")}_${opts.template}.html`;
       await writeFile(
-        path.join(dir, name),
+        path.join(/*turbopackIgnore: true*/ dir, name),
         `<!-- to: ${email.to} | subject: ${email.subject} -->\n${email.html}`,
       );
     }

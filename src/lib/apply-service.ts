@@ -1,5 +1,5 @@
 import "server-only";
-import { applicationSchema, DOCUMENTS, MAX_FILE_BYTES } from "@/lib/application";
+import { applicationSchema, DOCUMENTS, MAX_FILE_BYTES, PRIVACY_POLICY_VERSION } from "@/lib/application";
 import { db, schema } from "@/lib/db";
 import type { DocumentKind } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email/send";
@@ -48,7 +48,8 @@ export async function submitApplication(
   }
 
   if (!parsed.success || Object.keys(errors).length > 0) return { ok: false, errors };
-  const input = parsed.data;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consent is logged in the event, not a column
+  const { privacyConsent, ...input } = parsed.data;
 
   // Upload files first; if saving to the DB fails we delete them again.
   const stored: { kind: DocumentKind; key: string; name: string; mime: string; size: number }[] = [];
@@ -75,6 +76,8 @@ export async function submitApplication(
         brideId: bride.id,
         actor: "bride",
         type: "application.submitted",
+        // proof of consent to the privacy policy (sensitive data)
+        payload: { privacyConsent: true, privacyPolicyVersion: PRIVACY_POLICY_VERSION },
       });
       return bride.id;
     });

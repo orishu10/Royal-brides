@@ -26,6 +26,9 @@ export default function HomePage() {
       <Link href="/shop" className="mt-8 text-sm text-gold-dark underline-offset-4 hover:underline">
         כלה שאושרה? כניסה לבחירת המוצרים
       </Link>
+      <Link href="/privacy" className="mt-10 text-xs text-muted hover:underline">
+        מדיניות פרטיות
+      </Link>
     </main>
   );
 }

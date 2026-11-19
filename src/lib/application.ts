@@ -50,6 +50,8 @@ export function normalizeIsraeliMobile(value: string): string | null {
 
 const required = (label: string) => z.string().trim().min(1, `נא למלא ${label}`).max(200);
 
+export const PRIVACY_POLICY_VERSION = "2026-11";
+
 export const applicationSchema = z.object({
   firstName: required("שם פרטי"),
   lastName: required("שם משפחה"),
@@ -75,6 +77,7 @@ export const applicationSchema = z.object({
       const day = 86_400_000;
       return d > Date.now() - 60 * day && d < Date.now() + 3 * 365 * day;
     }, "תאריך החתונה לא תקין"),
+  privacyConsent: z.literal("on", { message: "יש לאשר את מדיניות הפרטיות" }),
 });
 
 export type ApplicationInput = z.infer<typeof applicationSchema>;

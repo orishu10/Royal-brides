@@ -1,0 +1,46 @@
+name: Nightly DB backup
+
+on:
+  schedule:
+    - cron: "30 1 * * *" # ~03:30 Israel time
+  workflow_dispatch:
+
+# Needs these repo secrets (Settings → Secrets and variables → Actions):
+#   PROD_DATABASE_URL, BACKUP_PASSPHRASE, R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BACKUP_BUCKET
+# Restore: see DEPLOY.md → "Restoring a backup".
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    if: ${{ vars.APP_URL != '' }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      BUCKET: ${{ secrets.R2_BACKUP_BUCKET }}
+    steps:
+      - name: Dump, compress and encrypt
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          FILE="royalbrides-$(date -u +%Y-%m-%dT%H%M).sql.gz.gpg"
+          docker run --rm postgres:17 pg_dump --no-owner --no-privileges "$DATABASE_URL" \
+            | gzip -9 \
+            | gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$BACKUP_PASSPHRASE" -o "$FILE"
+          test -s "$FILE"
+          echo "FILE=$FILE" >> "$GITHUB_ENV"
+
+      - name: Upload to R2
+        run: aws s3 cp "$FILE" "s3://$BUCKET/db/$FILE" --endpoint-url "$R2_ENDPOINT"
+
+      - name: Delete backups older than 30 days
+        run: |
+          set -euo pipefail
+          CUTOFF=$(date -u -d '30 days ago' +%Y-%m-%d)
+          aws s3 ls "s3://$BUCKET/db/" --endpoint-url "$R2_ENDPOINT" | awk '{print $4}' | while read -r f; do
+            d=$(echo "$f" | sed -E 's/^royalbrides-([0-9-]{10}).*/\1/')
+            if [[ "$d" < "$CUTOFF" ]]; then aws s3 rm "s3://$BUCKET/db/$f" --endpoint-url "$R2_ENDPOINT"; fi
+          done

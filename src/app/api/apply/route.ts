@@ -4,6 +4,7 @@ import { hasApplyAccess } from "@/lib/apply-access";
 import { submitApplication, type UploadedFile } from "@/lib/apply-service";
 import type { DocumentKind } from "@/lib/db/schema";
 import { rateLimit } from "@/lib/rate-limit";
+import { verifyHuman } from "@/lib/turnstile";
 
 export async function POST(request: Request) {
   if (!(await hasApplyAccess())) {
@@ -14,6 +15,11 @@ export async function POST(request: Request) {
   }
 
   const form = await request.formData();
+  // "website" is a hidden trap field – people never see it, spam bots fill it.
+  if (form.get("website")) return NextResponse.json({ ok: false, message: "שגיאה בשליחה" }, { status: 400 });
+  if (!(await verifyHuman(form.get("cf-turnstile-response")))) {
+    return NextResponse.json({ ok: false, message: "אימות האבטחה נכשל. נא לרענן את הדף ולנסות שוב." }, { status: 400 });
+  }
   const fields: Record<string, string> = {};
   const files: Partial<Record<DocumentKind, UploadedFile>> = {};
   for (const [name, value] of form.entries()) {

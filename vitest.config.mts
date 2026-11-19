@@ -9,6 +9,7 @@ export default defineConfig({
     },
   },
   test: {
+    include: ["tests/**/*.test.ts"],
     globalSetup: ["tests/global-setup.ts"],
     env: {
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? "postgres://rb:rb@localhost:5432/royalbrides_test",

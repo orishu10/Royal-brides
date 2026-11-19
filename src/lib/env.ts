@@ -8,6 +8,8 @@ const schema = z.object({
   SESSION_SECRET: z.string().min(32, "SESSION_SECRET must be at least 32 characters"),
   ADMIN_NOTIFY_EMAIL: z.string().email(),
   CRON_SECRET: z.string().min(20).optional(), // protects /api/cron/* (called by GitHub Actions)
+  MAINTAINER_EMAIL: z.string().email().optional(), // receives server-error alerts
+  TURNSTILE_SECRET_KEY: z.string().optional(), // Cloudflare Turnstile (anti-spam). Empty = check skipped.
 
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("כלות מלכות <noreply@royalbrides.co.il>"),

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HumanCheck } from "@/components/human-check";
 import { useEffect, useRef, useState } from "react";
 import {
   ACCEPTED_FILE_TYPES,
@@ -174,6 +175,22 @@ export function ApplicationForm() {
             <FileField key={d.kind} name={d.kind} label={d.label} error={errors[d.kind]} />
           ))}
         </div>
+
+        <label className="mt-8 flex items-start gap-3">
+          <input type="checkbox" name="privacyConsent" className="mt-1 h-5 w-5 shrink-0 accent-gold" aria-invalid={!!errors.privacyConsent} />
+          <span>
+            קראתי ואני מסכימה ל
+            <Link href="/privacy" target="_blank" className="text-gold-dark underline">
+              מדיניות הפרטיות
+            </Link>
+            , ולשמירת הפרטים והמסמכים לצורך בדיקת הבקשה וליווי.
+          </span>
+        </label>
+        {errors.privacyConsent && <p className="mt-1 text-sm text-red-700">{errors.privacyConsent}</p>}
+
+        {/* trap for spam bots – hidden from people */}
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+        <HumanCheck />
 
         {message && (
           <p className="mt-6 rounded-lg bg-red-50 p-3 text-red-800" role="alert">

@@ -37,6 +37,7 @@ describe("applicationSchema", () => {
     email: "Rachel@Example.com",
     address: "ירושלים",
     weddingDate: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10),
+    privacyConsent: "on",
   };
   it("normalizes valid input", () => {
     const r = applicationSchema.parse(valid);
@@ -55,5 +56,13 @@ describe("format", async () => {
     expect(formatDate(new Date("2026-11-19T22:30:00Z"))).toBe("20/11/2026"); // already the 20th in Israel
     expect(formatDateTime(new Date("2026-11-19T12:05:00Z"))).toBe("19/11/2026 14:05");
     expect(formatShekels(150050)).toBe("₪1,500.5");
+  });
+});
+
+describe("privacy consent", () => {
+  it("is required", () => {
+    const r = applicationSchema.safeParse({ firstName: "א" });
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues.map((i) => i.path[0])).toContain("privacyConsent");
   });
 });

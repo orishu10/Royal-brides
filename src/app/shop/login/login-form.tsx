@@ -1,5 +1,6 @@
 "use client";
 
+import { HumanCheck } from "@/components/human-check";
 import { useFormAction } from "@/lib/use-form-action";
 import { loginStep, type LoginState } from "../actions";
 
@@ -23,6 +24,7 @@ export function BrideLoginForm() {
             aria-label='דוא"ל'
             className="field text-center"
           />
+          <HumanCheck />
         </>
       ) : (
         <>

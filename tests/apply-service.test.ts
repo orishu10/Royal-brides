@@ -19,6 +19,7 @@ const fields = {
   email: "bride@example.com",
   address: "בני ברק",
   weddingDate: new Date(Date.now() + 60 * 86_400_000).toISOString().slice(0, 10),
+  privacyConsent: "on",
 };
 
 beforeEach(async () => {

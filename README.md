@@ -21,6 +21,7 @@ Form access code (default `06130`) lives in the `settings` table, key `apply_acc
 | | |
 |---|---|
 | `npm test` | unit + DB tests (needs Postgres DB `royalbrides_test`, see `vitest.config.mts`) |
+| `npm run test:e2e` | full bride journey in a real browser (resets `royalbrides_test`) |
 | `npm run lint` / `npm run typecheck` | static checks |
 | `npm run db:generate` | after editing `src/lib/db/schema.ts` – creates a migration in `drizzle/` |
 | `npm run db:migrate` | applies migrations (runs automatically on every Render deploy) |
@@ -41,6 +42,8 @@ Form access code (default `06130`) lives in the `settings` table, key `apply_acc
 | `src/lib/email/send.ts` | sending + logging every email to `events` |
 | `src/lib/storage.ts` | private file storage (R2 / local) |
 | `src/app/` | pages and API routes |
+
+**Server errors** are logged and emailed to `MAINTAINER_EMAIL` (max one email / 15 min). `/api/health` checks app + DB.
 
 **Debugging:** every action and every email (including failures) is written to the `events` table, per bride.
 

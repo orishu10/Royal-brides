@@ -26,9 +26,5 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-      - run: npm run build
-        env:
-          # build doesn't touch the DB, but env() validation needs values
-          DATABASE_URL: postgres://rb:rb@localhost:5432/royalbrides_test
-          SESSION_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
-          ADMIN_NOTIFY_EMAIL: admin@example.com
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e # builds the app and runs the full bride journey in a browser
