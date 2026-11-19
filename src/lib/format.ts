@@ -46,3 +46,9 @@ export const STATUS_LABELS = {
 export function isoDateInDays(days: number) {
   return new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
 }
+
+/** Today's date in Israel as "YYYY-MM-DD". */
+export function todayInIsrael() {
+  const p = israelParts(new Date());
+  return `${p.year}-${p.month}-${p.day}`;
+}

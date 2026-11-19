@@ -1,5 +1,6 @@
 // Database schema – the single source of truth for all tables.
 // After changing this file run: npm run db:generate  (creates a migration in /drizzle)
+import { sql } from "drizzle-orm";
 import {
   bigserial,
   boolean,
@@ -99,20 +100,12 @@ export const products = pgTable("products", {
   category: text("category").notNull(),
   priceAgorot: integer("price_agorot").notNull(),
   imageKey: text("image_key"),
+  // Options the bride chooses from (e.g. clothing). Empty = no choice needed. No stock tracking.
+  sizes: text("sizes").array().notNull().default(sql`'{}'::text[]`),
+  colors: text("colors").array().notNull().default(sql`'{}'::text[]`),
   sortOrder: integer("sort_order").notNull().default(0),
   active: boolean("active").notNull().default(true),
   createdAt: createdAt(),
-});
-
-// Size / color options (clothing). Products without variants have no rows here.
-export const productVariants = pgTable("product_variants", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  productId: uuid("product_id")
-    .notNull()
-    .references(() => products.id, { onDelete: "cascade" }),
-  size: text("size"),
-  color: text("color"),
-  active: boolean("active").notNull().default(true),
 });
 
 export const orders = pgTable(
@@ -121,7 +114,7 @@ export const orders = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     brideId: uuid("bride_id")
       .notNull()
-      .references(() => brides.id),
+      .references(() => brides.id, { onDelete: "cascade" }),
     totalAgorot: integer("total_agorot").notNull(),
     submittedAt: createdAt(),
   },
@@ -134,7 +127,6 @@ export const orderItems = pgTable("order_items", {
     .notNull()
     .references(() => orders.id, { onDelete: "cascade" }),
   productId: uuid("product_id").references(() => products.id),
-  variantId: uuid("variant_id").references(() => productVariants.id),
   // snapshots, so the order stays correct even if the product changes later
   name: text("name").notNull(),
   size: text("size"),
@@ -174,3 +166,4 @@ export const otpCodes = pgTable("otp_codes", {
 
 export type Bride = typeof brides.$inferSelect;
 export type DocumentKind = (typeof documentKind.enumValues)[number];
+export type Product = typeof products.$inferSelect;

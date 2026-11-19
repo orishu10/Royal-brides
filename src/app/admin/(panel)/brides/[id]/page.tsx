@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getBrideFile, TABS } from "@/lib/admin-queries";
 import { DOCUMENTS } from "@/lib/application";
 import { formatDate, formatDateTime, formatShekels, isoDateInDays, STATUS_LABELS } from "@/lib/format";
+import { OrderSummary } from "@/components/order-summary";
+import { getOrderForBride } from "@/lib/orders";
 import { DecisionForms } from "./decision-forms";
 
 export const metadata: Metadata = { title: "תיק כלה | פורטל מנהלת" };
@@ -16,6 +18,8 @@ const EVENT_LABELS: Record<string, string> = {
   "email.failed": "⚠️ שליחת מייל נכשלה",
   "document.viewed": "צפייה במסמך",
   "document.downloaded": "הורדת מסמך",
+  "bride.logged_in": "הכלה נכנסה לאתר",
+  "order.submitted": "נשלחה הזמנה",
 };
 
 export default async function BrideFilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +27,7 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
   const file = await getBrideFile(id);
   if (!file) notFound();
   const { bride, documents, events, tab, prevId, nextId } = file;
+  const order = await getOrderForBride(bride.id);
   const docLabel = (kind: string) => DOCUMENTS.find((d) => d.kind === kind)?.label ?? kind;
   const in30Days = isoDateInDays(30);
 
@@ -65,6 +70,13 @@ export default async function BrideFilePage({ params }: { params: Promise<{ id: 
             <Info label='דוא"ל' value={<a href={`mailto:${bride.email}`} dir="ltr">{bride.email}</a>} />
             <Info label="כתובת" value={bride.address} wide />
           </Card>
+
+          {order && (
+            <section className="rounded-xl bg-white p-5 shadow-sm">
+              <h2 className="mb-3 text-lg font-bold">הזמנה</h2>
+              <OrderSummary order={order} />
+            </section>
+          )}
 
           <section className="rounded-xl bg-white p-5 shadow-sm">
             <h2 className="mb-3 text-lg font-bold">מסמכים</h2>

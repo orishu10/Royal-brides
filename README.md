@@ -34,6 +34,9 @@ Form access code (default `06130`) lives in the `settings` table, key `apply_acc
 | `src/lib/apply-service.ts` | what happens when a bride submits |
 | `src/lib/bride-workflow.ts` | every status change (approve, reject, ...) – checks, history, emails |
 | `src/lib/admin-queries.ts` | admin list tabs, search, bride file |
+| `src/lib/bride-auth.ts` | bride login with a one-time email code |
+| `src/lib/catalog.ts` | categories + the initial product list (seeded once) |
+| `src/app/shop/` | bride login, catalog, cart, order |
 | `src/lib/email/templates.ts` | email wording |
 | `src/lib/email/send.ts` | sending + logging every email to `events` |
 | `src/lib/storage.ts` | private file storage (R2 / local) |

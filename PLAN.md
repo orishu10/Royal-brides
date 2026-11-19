@@ -137,11 +137,10 @@ documents       id, bride_id, kind(enum), r2_key, file_name, mime, size, uploade
                 kind: bride_id | bride_id_appendix | parent_id | parent_id_appendix |
                       death_certificate | wedding_invitation | recommendation_letter | other
 
-products        id, name, description, price, image_key, category, sort, active
-product_variants id, product_id, size, color, active      ← למוצרי ביגוד (מידות וצבעים). ללא מלאי – אין הגבלת כמות
+products        id, name, description, price, image_key, category, sort, active, sizes[], colors[]   ← ללא מלאי
 
 orders          id, bride_id, total, notes, submitted_at
-order_items     id, order_id, product_id, variant_id, name_snapshot, size, color, unit_price, qty
+order_items     id, order_id, product_id, name_snapshot, size, color, unit_price, qty
 
 events          id, bride_id, actor(admin_id | 'bride' | 'system'), type, payload(jsonb), created_at
                 ← לוג של כל פעולה ומייל. מסך "היסטוריה" בתיק הכלה. זה כלי הדיבאג העיקרי.
@@ -262,7 +261,7 @@ royal-brides/
 | 1 | ✅ שלד: Next.js 16, Tailwind RTL, Drizzle+Postgres, בדיקות, CI, `render.yaml`. (ה-deploy בפועל ממתין לחשבונות Render/Neon) | – |
 | 2 | ✅ טופס הזכאות מקצה לקצה: קוד גישה, פרטים + 7 מסמכים, בדיקת סוג קובץ אמיתי, פופ-אפ תודה, 2 מיילים, לוג | – |
 | 3 | ✅ פורטל מנהלת: התחברות, רשימה לפי סטטוס + חיפוש, תיק כלה, צפייה/הורדת מסמכים (מאובטח + לוג), אישור עם סכום ותוקף / דחייה עם סיבה + מיילים, היסטוריה | – |
-| 4 | חנות: ניהול מוצרים, OTP לכלה, קטלוג, עגלה עם תקציב, שליחת הזמנה + מיילים | 2 ימים |
+| 4 | ✅ חנות: ניהול מוצרים (תמונה, מידות/צבעים, הסתרה), 15 המוצרים מ-Wix נטענים אוטומטית, כניסת כלה בקוד חד-פעמי, קטלוג + סל עם תקציב, שליחת הזמנה + פופ-אפ + 2 מיילים, ההזמנה בתיק הכלה | – |
 | 5 | איסוף + ארכיון: לוח שנה, מייל איסוף, תזכורת (Render Cron Job), סגירת תיק | 1 יום |
 | 6 | הקשחה: rate limit, Turnstile, Sentry, uptime, גיבוי, בדיקות Playwright לכל הזרימה | 1 יום |
 | 7 | הגירה: ייצוא CSV + קבצים מ-Wix, סקריפט ייבוא, ייבוא מוצרים, בדיקה עם ברכה | 1 יום |

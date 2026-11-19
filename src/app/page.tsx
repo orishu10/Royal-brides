@@ -23,6 +23,9 @@ export default function HomePage() {
       <Link href="/apply" className="btn-outline mt-3 bg-white/70 px-10 text-lg">
         בדיקת זכאות
       </Link>
+      <Link href="/shop" className="mt-8 text-sm text-gold-dark underline-offset-4 hover:underline">
+        כלה שאושרה? כניסה לבחירת המוצרים
+      </Link>
     </main>
   );
 }

@@ -88,6 +88,64 @@ export function rejectedEmail(p: { to: string; firstName: string; reason?: strin
   };
 }
 
+/** Login code for the shop. */
+export function loginCodeEmail(p: { to: string; code: string }): Email {
+  // The code is not in the subject: subjects are saved in the history log.
+  const subject = "קוד כניסה – כלות מלכות";
+  return {
+    to: p.to,
+    subject,
+    html: layout(
+      subject,
+      `<p>קוד הכניסה לאתר כלות מלכות:</p>
+       <p style="text-align:center;font-size:32px;letter-spacing:8px;font-weight:bold;margin:24px 0" dir="ltr">${escapeHtml(p.code)}</p>
+       <p>הקוד בתוקף ל-10 דקות. אם לא ביקשת להיכנס, אפשר להתעלם מהודעה זו.</p>`,
+    ),
+  };
+}
+
+export type OrderLine = { name: string; size?: string | null; color?: string | null; quantity: number; total: string };
+
+function orderTable(lines: OrderLine[], total: string) {
+  const rows = lines
+    .map((l) => {
+      const opts = [l.size && `מידה ${l.size}`, l.color && `צבע ${l.color}`].filter(Boolean).join(", ");
+      return `<tr><td style="padding:6px 0">${escapeHtml(l.name)}${opts ? ` <span style="color:#8b806d">(${escapeHtml(opts)})</span>` : ""} × ${l.quantity}</td>
+              <td style="padding:6px 0;text-align:left;white-space:nowrap">${escapeHtml(l.total)}</td></tr>`;
+    })
+    .join("");
+  return `<table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e7dfcc;border-bottom:1px solid #e7dfcc;margin:16px 0">${rows}
+    <tr><td style="padding:8px 0;font-weight:bold;border-top:1px solid #e7dfcc">סה"כ</td>
+        <td style="padding:8px 0;text-align:left;font-weight:bold;border-top:1px solid #e7dfcc">${escapeHtml(total)}</td></tr></table>`;
+}
+
+/** 5. To the bride – order received. */
+export function orderConfirmationEmail(p: { to: string; firstName: string; lines: OrderLine[]; total: string }): Email {
+  const subject = "ההזמנה שלך התקבלה – כלות מלכות";
+  return {
+    to: p.to,
+    subject,
+    html: layout(
+      subject,
+      `<p>${escapeHtml(p.firstName)} יקרה,</p>
+       <p>תודה! ההזמנה שלך התקבלה:</p>
+       ${orderTable(p.lines, p.total)}
+       <p>נעדכן אותך במייל על מועד ומקום איסוף ההזמנה.</p>
+       <p>בברכת מזל טוב,<br>צוות כלות מלכות</p>`,
+    ),
+  };
+}
+
+/** 6. To the manager – a new order. */
+export function newOrderAdminEmail(p: { to: string; fullName: string; lines: OrderLine[]; total: string; link: string }): Email {
+  const subject = `הזמנה חדשה: ${p.fullName}`;
+  return {
+    to: p.to,
+    subject,
+    html: layout(subject, `<p>${escapeHtml(p.fullName)} שלחה הזמנה:</p>${orderTable(p.lines, p.total)}${button(p.link, "לתיק הכלה")}`),
+  };
+}
+
 /** 2. To the manager – a new bride applied. */
 export function newApplicationAdminEmail(p: {
   to: string;
