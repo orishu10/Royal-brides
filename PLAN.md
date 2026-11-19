@@ -97,12 +97,23 @@
 | קבצים | **Cloudflare R2** (bucket פרטי, Signed URLs) | 10GB חינם, בלי עלות הורדה | 0 |
 | מיילים | **Resend** + React Email (תבניות בעברית) | 3,000 מיילים/חודש חינם, אימות דומיין (SPF/DKIM) | 0 |
 | אימות | מנהלת: אימייל+סיסמה (argon2) + session cookie. כלה: **קוד חד-פעמי למייל (OTP)** | בלי סיסמאות לכלות, בלי ספריית Auth כבדה | 0 |
-| אחסון | **Vercel** | deploy אוטומטי מכל push, HTTPS, תצוגה מקדימה לכל PR, Cron | 0 (Hobby) / $20 (Pro, אם יוגדר כשימוש מסחרי) |
+| אחסון | **Render – Web Service, Starter** (חשבון קיים) | שרת Node רגיל שתמיד דולק (בלי "הירדמות"), deploy אוטומטי מכל push, HTTPS לדומיין, Cron Jobs, לוגים פשוטים. בלי מגבלות של Edge (argon2, העלאות) | ~$7/חודש |
 | ניטור | Sentry (Free) + Better Stack Uptime (Free) | שגיאות עם stack trace, התראה אם האתר נופל | 0 |
 | בדיקות | Vitest (לוגיקה) + Playwright (זרימה מלאה) + GitHub Actions | | 0 |
 | גיבוי | GitHub Action לילי: `pg_dump` → R2 | בנוסף לשחזור של Neon | 0 |
 
-**סה"כ: ₪0 לחודש** (בנוסף לדומיין שכבר קיים). לעומת מנוי Wix Business היום.
+**סה"כ: כ-$7 לחודש (~₪25)** – רק Render. כל השאר בשכבות חינמיות. (Vercel Hobby אסור לשימוש מסחרי, ו-Vercel Pro עולה $20.)
+
+חלופות שנבדקו לאחסון:
+| חלופה | עלות | למה לא נבחרה |
+|---|---|---|
+| Render Free | $0 | נרדם אחרי 15 דק' בלי תנועה, ההתעוררות לוקחת כדקה – חוויה רעה לכלה ולברכה |
+| Cloudflare Workers (OpenNext) | $0 | אפשרי וזול, אבל ריצה ב-Edge: מגבלות CPU/זיכרון, ספריות Node מסוימות לא עובדות, דיבאג קשה יותר |
+| Railway Hobby | ~$5+ לפי שימוש | דומה ל-Render, אבל חיוב לפי שימוש פחות צפוי ואין חשבון קיים |
+| VPS (Hetzner) + Coolify | ~€5 | הכי זול לשליטה מלאה, אבל דורש תחזוקת שרת |
+| Vercel Pro | $20 | יקר פי 3 בלי יתרון ממשי לאתר בגודל הזה |
+
+הקוד הוא Next.js סטנדרטי, אז אפשר לעבור בין ספקים בלי לשכתב.
 
 חלופה אם רוצים שליטה מלאה: VPS אחד (Hetzner ~€5/חודש) עם Docker – Next.js + Postgres + Caddy. זול גם כן, אבל דורש תחזוקת שרת (עדכונים, גיבויים, דיסק). להתחלה אני ממליץ על Vercel+Neon+R2.
 
@@ -111,7 +122,8 @@
 ## 4. מודל נתונים
 
 ```
-admins          id, email, password_hash, name, created_at
+admins          id, email, password_hash, name, role('manager' | 'maintainer'), created_at
+                ← manager = ברכה (מקבלת התראות). maintainer = מתחזק/ת: גישה מלאה לבדיקה ותחזוקה, בלי התראות
 
 brides          id, first_name, last_name, id_number(text), father_name, mother_name,
                 community, wedding_date, email, phone, address,
@@ -195,7 +207,7 @@ submitted ──approve(amount, expiry)──► approved ──submitOrder─�
 | 5 | הזמנה נשלחה | כלה | פירוט ההזמנה |
 | 6 | הזמנה נשלחה | ברכה | הזמנה חדשה + קישור |
 | 7 | נקבע איסוף | כלה | תאריך ושעה, כתובת, "נא לתאם הגעה יום לפני" |
-| 8 (מומלץ) | יום לפני האיסוף | כלה | תזכורת אוטומטית (Vercel Cron) |
+| 8 (מומלץ) | יום לפני האיסוף | כלה | תזכורת אוטומטית (Render Cron Job) |
 
 כל המיילים: תבנית אחת בעיצוב המותג, RTL, נשלחים מ-`noreply@royalbrides.co.il` עם reply-to ל-`bracha@bjs.co.il`. התראות למנהלת נשלחות ל-`bracha@bjs.co.il`. כל שליחה נרשמת ב-`events` (כולל כישלון), ואפשר "שליחה מחדש" מהתיק.
 
@@ -248,21 +260,21 @@ royal-brides/
 | שלב | תוכן | הערכה |
 |---|---|---|
 | 0 | ✅ מחקר הושלם (טופס, פורטל, מוצרים, קוד). נשאר: נוסח המיילים מ-Automations | – |
-| 1 | שלד: Next.js, Tailwind RTL, Drizzle+Neon, CI, deploy ל-Vercel על כתובת זמנית של Vercel | 1 יום |
+| 1 | שלד: Next.js, Tailwind RTL, Drizzle+Neon, CI, deploy ל-Render על כתובת זמנית `*.onrender.com` | 1 יום |
 | 2 | טופס הזכאות מקצה לקצה (קוד גישה, 2 שלבים, העלאה ל-R2, פופ-אפ, 2 מיילים) | 2 ימים |
 | 3 | פורטל מנהלת: התחברות, רשימה, תיק כלה, צפייה/הורדת קבצים, אישור/דחייה + מיילים | 2 ימים |
 | 4 | חנות: ניהול מוצרים, OTP לכלה, קטלוג, עגלה עם תקציב, שליחת הזמנה + מיילים | 2 ימים |
-| 5 | איסוף + ארכיון: לוח שנה, מייל איסוף, תזכורת Cron, סגירת תיק | 1 יום |
+| 5 | איסוף + ארכיון: לוח שנה, מייל איסוף, תזכורת (Render Cron Job), סגירת תיק | 1 יום |
 | 6 | הקשחה: rate limit, Turnstile, Sentry, uptime, גיבוי, בדיקות Playwright לכל הזרימה | 1 יום |
 | 7 | הגירה: ייצוא CSV + קבצים מ-Wix, סקריפט ייבוא, ייבוא מוצרים, בדיקה עם ברכה | 1 יום |
-| 8 | עלייה לאוויר: DNS של `כלותמלכות.ישראל` (`xn--9dbaqbdbn9ge.xn--4dbrk0ce`) ל-Vercel + הפניה מ-`royalbrides.co.il`, אימות דומיין ב-Resend, ניטור, השארת Wix במצב קריאה לשבועיים ואז ביטול | 0.5 יום |
+| 8 | עלייה לאוויר: DNS של `כלותמלכות.ישראל` (`xn--9dbaqbdbn9ge.xn--4dbrk0ce`) ל-Render + הפניה מ-`royalbrides.co.il`, אימות דומיין ב-Resend, ניטור, השארת Wix במצב קריאה לשבועיים ואז ביטול | 0.5 יום |
 
 **סה"כ: כ-10–11 ימי עבודה.**
 
 ### רשימת "באוויר" (Go-live checklist)
-- [ ] DNS: A/CNAME ל-Vercel; רשומות SPF, DKIM, DMARC ל-Resend
-- [ ] משתני סביבה ב-Vercel: `DATABASE_URL`, `R2_*`, `RESEND_API_KEY`, `SESSION_SECRET`, `SENTRY_DSN`, `TURNSTILE_*`
-- [ ] משתמשת מנהלת לברכה עם סיסמה חזקה
+- [ ] DNS אצל הרשם (Internic): רשומות ל-Render עבור `כלותמלכות.ישראל` + הפניה מ-`royalbrides.co.il`; SPF, DKIM, DMARC ל-Resend על `royalbrides.co.il`
+- [ ] משתני סביבה ב-Render: `DATABASE_URL`, `R2_*`, `RESEND_API_KEY`, `SESSION_SECRET`, `SENTRY_DSN`, `TURNSTILE_*`
+- [ ] משתמשת manager לברכה + משתמש maintainer לך, עם סיסמאות חזקות
 - [ ] בדיקת זרימה מלאה בפרודקשן עם כלה-בדיקה, ומחיקתה
 - [ ] בדיקת מיילים בג'ימייל/אאוטלוק (לא בספאם)
 - [ ] גיבוי ראשון רץ ונבדק שחזור
@@ -280,8 +292,9 @@ royal-brides/
 - **מייל המנהלת:** `bracha@bjs.co.il`.
 - **דומיין:** `כלותמלכות.ישראל` (punycode: `xn--9dbaqbdbn9ge.xn--4dbrk0ce`).
 
+- **מנהלים:** ברכה (manager) + משתמש maintainer לבדיקה ותחזוקה.
+- **שני הדומיינים שלנו**, רשומים ב-Internic. האתר ב-`כלותמלכות.ישראל`, מיילים נשלחים מ-`royalbrides.co.il`, והכתובת הישנה מפנה לחדשה.
+- **הארגון אינו עמותה** ← אחסון ב-Render Starter.
+
 ## 11. עוד פתוח
 1. נוסח המיילים (אם אין ב-Wix – אכתוב ואתם תאשרו).
-2. מנהלת אחת או כמה?
-3. האם הארגון עמותה/ללא מטרות רווח? (Vercel Hobby מול Pro)
-4. אצל מי רשום `כלותמלכות.ישראל` ומי מנהל את ה-DNS? והאם `royalbrides.co.il` נשאר (מומלץ: לשליחת מיילים + הפניה)?
